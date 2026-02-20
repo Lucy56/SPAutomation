@@ -1,0 +1,40 @@
+{
+  "campaign": {
+    "title": "19-01-2026-WeeklySpecials-CrewPullovers-Mimosa",
+    "subject": "Weekly Specials: Cozy Crew Pullovers + Mimosa Dress",
+    "from_name": "Sinclair Patterns",
+    "from_email": "hello@sinclairpatterns.com",
+    "reply_to": "hello@sinclairpatterns.com",
+    "html_file": "2026-01-19-WeeklySpecials.html",
+    "brand_id": "1",
+    "list_ids": "zDOpr87Nl7Wztkn2UnQRBg,olrPdvDTCPfq892TwO26oWUw,IHuKbEWHj5pcUcKTqA88Pg",
+    "track_opens": 2,
+    "track_clicks": 2,
+    "send_campaign": 1,
+    "schedule_date_time": "January 19, 2026 11:21AM",
+    "schedule_timezone": "Australia/Brisbane",
+    "preheader": "Weekly specials - Crew Pullovers for women and men",
+    "products_featured": [
+      {
+        "name": "Crew Pullover and Hoodie (Women)",
+        "url": "https://sinclairpatterns.com/products/crew-pullover-and-hoodie-pdf-sewing-pattern",
+        "price_original": "$10.99",
+        "price_sale": "$8.99"
+      },
+      {
+        "name": "Crew Pullover for Men",
+        "url": "https://sinclairpatterns.com/products/crew-pullover-for-men-pdf",
+        "price_original": "$10.99",
+        "price_sale": "$8.99"
+      },
+      {
+        "name": "Mimosa Lantern Style Dress",
+        "url": "https://sinclairpatterns.com/products/mimosa-lantern-style-knit-dress-with-a-cowl-and-pockets-pdf",
+        "price_original": "$10.99",
+        "price_sale": "$8.99"
+      }
+    ],
+    "sale_ends": "Sunday, January 25th, 2026",
+    "created_date": "2026-01-19"
+  }
+}

@@ -1,0 +1,429 @@
+{
+  "analysis_date": "2026-01-19T20:11:44.530080",
+  "top_recent_sellers": [
+    {
+      "title": "Libby knit princess seams raglan sleeves pullover (PDF)",
+      "product_id": 9709361398000,
+      "units_sold": 1044,
+      "revenue": 8826.36,
+      "num_orders": 1044,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Amber briefs underwear for women (PDF)",
+      "product_id": 9759576228080,
+      "units_sold": 745,
+      "revenue": 6147.54,
+      "num_orders": 745,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Glide no front and no side seam leggings (PDF)",
+      "product_id": 9735641825520,
+      "units_sold": 539,
+      "revenue": 4750.59,
+      "num_orders": 539,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Harper classic knit cardigan and duster (PDF sewing pattern )",
+      "product_id": 5601164656789,
+      "units_sold": 105,
+      "revenue": 1153.95,
+      "num_orders": 105,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Sunset knit lounge pants (PDF) (2025 Updated)",
+      "product_id": 5602941730965,
+      "units_sold": 100,
+      "revenue": 1097.93,
+      "num_orders": 100,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Crew pullover and hoodie (PDF sewing pattern)",
+      "product_id": 9120087802096,
+      "units_sold": 100,
+      "revenue": 1089.3700000000001,
+      "num_orders": 100,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Juno knit zip up fleece style jacket with pockets (PDF)",
+      "product_id": 6848663552149,
+      "units_sold": 96,
+      "revenue": 1047.29,
+      "num_orders": 96,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Mirabel side pleated knit top and dress (PDF)",
+      "product_id": 9668857037040,
+      "units_sold": 95,
+      "revenue": 1033.05,
+      "num_orders": 95,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Jenna kaftan style dress (PDF)",
+      "product_id": 9554709840112,
+      "units_sold": 94,
+      "revenue": 1009.72,
+      "num_orders": 94,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Alva woven dolman style top (PDF)",
+      "product_id": 9390825013488,
+      "units_sold": 90,
+      "revenue": 959.41,
+      "num_orders": 90,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Alana princess seam knit dress with pockets (PDF)",
+      "product_id": 5804354764949,
+      "units_sold": 85,
+      "revenue": 931.35,
+      "num_orders": 85,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Mimosa lantern style knit dress with a cowl and pockets (PDF)",
+      "product_id": 9078261416176,
+      "units_sold": 76,
+      "revenue": 772.0500000000001,
+      "num_orders": 76,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Cassie V neckline top and dress for woven fabrics (PDF)",
+      "product_id": 9598867538160,
+      "units_sold": 76,
+      "revenue": 826.8100000000001,
+      "num_orders": 76,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Sofia shawl collar classic sweater (PDF)",
+      "product_id": 5608778989717,
+      "units_sold": 74,
+      "revenue": 814.9200000000001,
+      "num_orders": 74,
+      "category": "recent_bestseller"
+    },
+    {
+      "title": "Pebble henley style top and dress (PDF)",
+      "product_id": 8159110693104,
+      "units_sold": 72,
+      "revenue": 655.6,
+      "num_orders": 72,
+      "category": "recent_bestseller"
+    }
+  ],
+  "historical_bestsellers": [
+    {
+      "title": "Isla V-neck sleeveless top, tunic and dress for woven and knit fabrics (PDF)",
+      "product_id": 8625065033968,
+      "units_sold": 676,
+      "revenue": 5352.72,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Westwood classic chino trousers (PDF)",
+      "product_id": 8489118236912,
+      "units_sold": 579,
+      "revenue": 5235.68,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Essence classic shorties underwear (PDF)",
+      "product_id": 8566315221232,
+      "units_sold": 466,
+      "revenue": 3685.6,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Uno zip pullover (PDF)",
+      "product_id": 8539792605424,
+      "units_sold": 301,
+      "revenue": 2461.88,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Valleyberry skater dress for children (PDF)",
+      "product_id": 8504525750512,
+      "units_sold": 259,
+      "revenue": 1541.1100000000001,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Berry semi fitted tee for children (PDF)",
+      "product_id": 8507466023152,
+      "units_sold": 222,
+      "revenue": 1312.71,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "ADD-ON Flared skirts add-on pack for Valleyberry dress for children (PDF)",
+      "product_id": 8506358530288,
+      "units_sold": 220,
+      "revenue": 1249.77,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "ADD-ON Puffed Sleeves add-on pack for Valleyberry dress and Berry tee other compatible patterns for children (PDF)",
+      "product_id": 8507340914928,
+      "units_sold": 211,
+      "revenue": 1187.02,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "ADD-ON Flared Sleeves add-on pack for Valleyberry dress and Berry tee other compatible patterns for children (PDF)",
+      "product_id": 8506097860848,
+      "units_sold": 195,
+      "revenue": 1073.42,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Bondi 22 knit classic fitted t-shirt (PDF)",
+      "product_id": 5587559350421,
+      "units_sold": 113,
+      "revenue": 1217.7,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Flex no front seam leggings with colorblocking (PDF)",
+      "product_id": 8132295885040,
+      "units_sold": 96,
+      "revenue": 959.4,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Kiki briefs with low, medium and high rise options (PDF)",
+      "product_id": 6428407988373,
+      "units_sold": 91,
+      "revenue": 990.34,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Poppy easy fitting pants for woven fabrics (PDF)",
+      "product_id": 6931207028885,
+      "units_sold": 88,
+      "revenue": 950.72,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Selma knit top and tunic with round and square neckline options (PDF)",
+      "product_id": 8388681433328,
+      "units_sold": 78,
+      "revenue": 827.5600000000001,
+      "category": "historical_bestseller"
+    },
+    {
+      "title": "Whisper no front seam boyshorts with various inseams (PDF)",
+      "product_id": 8300190695664,
+      "units_sold": 75,
+      "revenue": 815.9200000000001,
+      "category": "historical_bestseller"
+    }
+  ],
+  "underrated_patterns": [
+    {
+      "title": "Xena casual racerback tank top with a built-in bra (PDF)",
+      "product_id": 5606927007893,
+      "units_sold": 10,
+      "revenue": 99.23,
+      "category": "underrated"
+    },
+    {
+      "title": "Cloudberry knit raglan shirt for children (PDF)",
+      "product_id": 6616354586773,
+      "units_sold": 10,
+      "revenue": 86.2,
+      "category": "underrated"
+    },
+    {
+      "title": "Marleyberry knit dolman top with pockets for children (PDF)",
+      "product_id": 7439925510384,
+      "units_sold": 10,
+      "revenue": 90.08,
+      "category": "underrated"
+    },
+    {
+      "title": "Poesy woven / knit peasant style blouse, tunic and dress (PDF)",
+      "product_id": 5579089903765,
+      "units_sold": 9,
+      "revenue": 96.74000000000001,
+      "category": "underrated"
+    },
+    {
+      "title": "ADD-ON Flared Sleeves add-on pack for Bondi 22 and other compatible patterns (PDF)",
+      "product_id": 7960753602800,
+      "units_sold": 9,
+      "revenue": 99.19,
+      "category": "underrated"
+    },
+    {
+      "title": "ADD-ON Flared skirts for Valley skater dress (PDF)",
+      "product_id": 5578992779413,
+      "units_sold": 8,
+      "revenue": 86.71000000000001,
+      "category": "underrated"
+    },
+    {
+      "title": "Laura relaxed fit shawl collar cardigan (PDF)",
+      "product_id": 5606944080021,
+      "units_sold": 8,
+      "revenue": 78.57000000000001,
+      "category": "underrated"
+    },
+    {
+      "title": "Sofberry shawl collar top for children (PDF)",
+      "product_id": 7697379918064,
+      "units_sold": 8,
+      "revenue": 72.48,
+      "category": "underrated"
+    },
+    {
+      "title": "Erica knit pencil skirt (PDF)",
+      "product_id": 5609728901269,
+      "units_sold": 7,
+      "revenue": 41.02,
+      "category": "underrated"
+    },
+    {
+      "title": "ADD-ON Flared Sleeves add-on pack for Valleyberry dress and Berry tee other compatible patterns for children (PDF)",
+      "product_id": 8506097860848,
+      "units_sold": 7,
+      "revenue": 51.09,
+      "category": "underrated"
+    },
+    {
+      "title": "Shelby relaxed cut longline knit shell tunic and dress",
+      "product_id": 5604242260117,
+      "units_sold": 6,
+      "revenue": 63.32,
+      "category": "underrated"
+    },
+    {
+      "title": "Rockyberry knit tank top for children (PDF)",
+      "product_id": 6984695709845,
+      "units_sold": 6,
+      "revenue": 51.74,
+      "category": "underrated"
+    },
+    {
+      "title": "Vienna knit jeggings with moto patch option (PDF)",
+      "product_id": 7177030631573,
+      "units_sold": 6,
+      "revenue": 65.18,
+      "category": "underrated"
+    },
+    {
+      "title": "Kirra relaxed fit hoodie (PDF)",
+      "product_id": 5608746156181,
+      "units_sold": 5,
+      "revenue": 50.15,
+      "category": "underrated"
+    },
+    {
+      "title": "Soho dolman relaxed style top, tunic and mini dress (PDF)",
+      "product_id": 6086506971285,
+      "units_sold": 5,
+      "revenue": 55.17,
+      "category": "underrated"
+    }
+  ],
+  "suggested_sets": [
+    {
+      "name": "Bestseller Bundle",
+      "patterns": [
+        {
+          "title": "Libby knit princess seams raglan sleeves pullover (PDF)",
+          "product_id": 9709361398000,
+          "units_sold": 1044,
+          "revenue": 8826.36,
+          "num_orders": 1044,
+          "category": "recent_bestseller"
+        },
+        {
+          "title": "Juno knit zip up fleece style jacket with pockets (PDF)",
+          "product_id": 6848663552149,
+          "units_sold": 49,
+          "revenue": 538.51,
+          "category": "historical_bestseller"
+        },
+        {
+          "title": "Xena casual racerback tank top with a built-in bra (PDF)",
+          "product_id": 5606927007893,
+          "units_sold": 10,
+          "revenue": 99.23,
+          "category": "underrated"
+        }
+      ],
+      "reasoning": "Built around current bestseller 'Libby knit princess seams raglan sleeves pullover (PDF)' with complementary patterns"
+    },
+    {
+      "name": "Timeless Classics",
+      "patterns": [
+        {
+          "title": "Isla V-neck sleeveless top, tunic and dress for woven and knit fabrics (PDF)",
+          "product_id": 8625065033968,
+          "units_sold": 676,
+          "revenue": 5352.72,
+          "category": "historical_bestseller"
+        },
+        {
+          "title": "Amber briefs underwear for women (PDF)",
+          "product_id": 9759576228080,
+          "units_sold": 745,
+          "revenue": 6147.54,
+          "num_orders": 745,
+          "category": "recent_bestseller"
+        },
+        {
+          "title": "Cloudberry knit raglan shirt for children (PDF)",
+          "product_id": 6616354586773,
+          "units_sold": 10,
+          "revenue": 86.2,
+          "category": "underrated"
+        }
+      ],
+      "reasoning": "Mix of proven historical bestseller with current popular pattern"
+    },
+    {
+      "name": "Hidden Gems",
+      "patterns": [
+        {
+          "title": "Xena casual racerback tank top with a built-in bra (PDF)",
+          "product_id": 5606927007893,
+          "units_sold": 10,
+          "revenue": 99.23,
+          "category": "underrated"
+        },
+        {
+          "title": "Cloudberry knit raglan shirt for children (PDF)",
+          "product_id": 6616354586773,
+          "units_sold": 10,
+          "revenue": 86.2,
+          "category": "underrated"
+        },
+        {
+          "title": "Marleyberry knit dolman top with pockets for children (PDF)",
+          "product_id": 7439925510384,
+          "units_sold": 10,
+          "revenue": 90.08,
+          "category": "underrated"
+        }
+      ],
+      "reasoning": "Showcase quality patterns that deserve more attention"
+    }
+  ],
+  "excluded_patterns": [
+    "Mimosa Lantern Style Dress",
+    "Crew Pullover and Hoodie (Women)",
+    "Crew Pullover for Men"
+  ]
+}

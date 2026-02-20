@@ -1,0 +1,22 @@
+{
+  "patterns": [
+    {
+      "handle": "macy-knit-semi-fitted-cowl-neck-top-pdf",
+      "original_price": 9.99,
+      "sale_price": 7.99
+    },
+    {
+      "handle": "rosy-tie-front-cardigan-with-options-pdf",
+      "original_price": 10.99,
+      "sale_price": 8.99
+    },
+    {
+      "handle": "selma-knit-top-and-tunic-with-round-and-square-neckline-options-pdf",
+      "original_price": 10.99,
+      "sale_price": 8.99
+    }
+  ],
+  "start_date": "2026-02-02",
+  "end_date": "2026-02-09",
+  "theme": "Classic Knit Essentials"
+}

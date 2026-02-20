@@ -1,0 +1,67 @@
+{
+  "variant_name": "Bold CTA",
+  "variant_id": "A",
+  "description": "Bold call-to-action with urgency and benefits",
+  "pinterest_metadata_template": {
+    "title": "{pattern_name} PDF Sewing Pattern - Instant Download | Sinclair Patterns",
+    "description": "Create your dream {garment_type} with this easy-to-follow PDF sewing pattern! Perfect for all skill levels. ✨ INCLUDES: ✓ Step-by-step instructions with illustrations ✓ Multiple size options ✓ Seam allowances included ✓ Print-at-home A4/US Letter format ✓ Projector file for A0 printing ✓ Layered pattern pieces for easy cutting. Start sewing today! 🧵✂️ #sewingpattern #pdfsewing #sinclairpatterns #handmadewardrobe #sewyourownclothes #diyfashion",
+    "link": "https://sinclairpatterns.com/products/{pattern_slug}?utm_source=pinterest&utm_medium=social&utm_campaign=variant_A&utm_content={pattern_slug}_{image_number}",
+    "alt_text": "{pattern_name} sewing pattern - {garment_type} modeled by woman in editorial style photo with gradient background",
+    "keywords": [
+      "sewing pattern PDF",
+      "{garment_type} sewing pattern",
+      "PDF sewing patterns",
+      "beginner sewing pattern",
+      "easy sewing patterns",
+      "instant download sewing pattern",
+      "{pattern_name} pattern",
+      "Sinclair Patterns",
+      "DIY {garment_type}",
+      "handmade wardrobe",
+      "sewing tutorial",
+      "printable sewing pattern",
+      "make your own clothes",
+      "sustainable fashion",
+      "slow fashion sewing",
+      "sewing projects",
+      "dress pattern",
+      "top pattern",
+      "women's sewing pattern",
+      "modern sewing patterns",
+      "indie sewing pattern"
+    ],
+    "board_suggestions": [
+      "Sewing Patterns",
+      "PDF Sewing Patterns",
+      "DIY Fashion",
+      "Handmade Wardrobe",
+      "Sewing Projects"
+    ],
+    "hashtags": [
+      "sewingpattern",
+      "sinclairpatterns",
+      "pdfsewing",
+      "diyfashion",
+      "handmadewardrobe",
+      "sewyourownclothes",
+      "sewingcommunity",
+      "isew",
+      "memade",
+      "sewist",
+      "makeyourownclothes",
+      "sewingproject",
+      "sewinglife",
+      "sustainablefashion",
+      "slowfashion"
+    ],
+    "seo_tags": [
+      "{pattern_name} sewing pattern",
+      "how to sew {garment_type}",
+      "{garment_type} pattern PDF",
+      "easy {garment_type} sewing",
+      "beginner friendly sewing"
+    ]
+  },
+  "performance_weight": 0.20,
+  "status": "active"
+}

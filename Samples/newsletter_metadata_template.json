@@ -1,0 +1,15 @@
+{
+  "campaign_metadata_template": {
+    "title": "[Format: DD-MM-YYYY-CampaignType-ProductDescription]",
+    "subject": "[Short, engaging subject line with value proposition]",
+    "from_name": "Sinclair Patterns",
+    "preheader": "[Optional: Visible preview text that appears after subject line]",
+    "notes": "Campaign title should use reversed date format (DD-MM-YYYY) followed by descriptive campaign type and featured products"
+  },
+  "example": {
+    "title": "19-01-2026-WeeklySpecials-CrewPullovers-Mimosa",
+    "subject": "Weekly Specials: Cozy Crew Pullovers + Mimosa Dress - Save $2",
+    "from_name": "Sinclair Patterns",
+    "preheader": "Weekly specials - Crew Pullovers for women and men"
+  }
+}

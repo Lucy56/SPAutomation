@@ -1,0 +1,81 @@
+Using this photo make a Pinterest pin. Follow Pinterest best practices.
+
+Create a Pinterest pin using this photo for the {pattern_name} pdf sewing pattern by Sinclair Patterns.
+Bright and airy style.
+
+LAYOUT:
+- Model should fill approximately 75-80% of vertical space
+- Position model very slightly off-center to leave space for text
+- Do not crop head. If the source has cropped / in the grass feet/shoes, crop higher (ankles, below knees, or hip) depending on where garment finishes
+- Use best fashion photography practices for cropping
+- Pinterest vertical format
+
+BACKGROUND:
+- Remove the original background with clean, professional edges
+- No visible dark fringe, halo, or outline around the cutout
+- Replace with soft gradient using at least 2 complementary colors that will create an expensive feel and elegant combination (not cheap colors or cheap look lines or cheap color combinations)
+- The garment should pop against the background
+- Add very subtle gradient lines or linear shapes for airiness and modern feel
+- Background must complement the garment: 30-40% lighter or darker than garment
+- Avoid muddy combinations (brown on brown, beige on beige, warm on warm)
+- Use complementary color theory to make garment stand out
+
+LIGHTING & MODEL INTEGRATION:
+- CRITICAL: Model must look like she is standing IN this BACKGROUND
+- BUTTERFLY lightning on the face
+- Increase model's overall exposure to match background brightness. Model exposure should match or slightly exceed background brightness
+- Color temperature of model's skin must match the background warmth/coolness
+- If background is cool and bright, model should have cool bright lighting
+- If model looks darker or warmer than the background, adjust until they match
+
+PHOTO ENHANCEMENT:
+- Light retouch: softer skin tone, smooth skin and garment lines
+- Brighten eye whites and teeth subtly (if visible)
+- Light sheen on hair
+- If a model too pale, add a subtle blush
+- Strong studio beauty light, slightly bright and airy, skin glow, HDR
+- Overall bright, high-key look with lifted whites
+- Do NOT change physical appearance of model (no reshaping)
+- Lens and angle correction only
+- Adjust skin tone slightly to harmonize with garment and background color temperature
+
+SHADOW/DEPTH:
+- DO NOT add dark edge shadow or outline tracing the model's silhouette
+- NO tight drop shadow around the body
+- Shadow opacity maximum 15-20%, at least 50px
+- Think "soft natural light" not "spotlight against wall or ground"
+
+TYPOGRAPHY:
+
+Text placement:
+- Position text block in top 25% but never over the garment
+- Align left or center (be consistent)
+- Never place text over the model or garment
+- Ensure strong contrast between text and background (dark text on light bg, or light text on dark bg)
+
+Hierarchy and sizing (relative to pin height) - all aligned:
+- Pattern name {pattern_name} : 10-12% of pin height, ALL CAPS, bold or semi-bold weight
+- "pdf sewing pattern": 5-6% of pin height, sentence case, bold weight, positioned directly below pattern name
+- "by Sinclair Patterns": 4% of pin height, regular weight, subtle but legible
+
+Font:
+- Use ONE clean sans-serif font family throughout (similar to Montserrat, DM Sans, Poppins, or Helvetica)
+- NO serif fonts
+- NO script or decorative fonts
+- Consistent letter spacing
+
+Text color:
+- Use charcoal (#333333) or dark gray on light backgrounds
+- Use off-white (#F5F5F5) on dark backgrounds
+- Never pure black or pure white
+
+
+DO NOT INCLUDE:
+
+Call-to-action buttons
+Geometric shapes, arches, circles, or frames
+Speckled, dotted, or textured backgrounds
+Words like "instant download", "shop now", "free"
+
+Any graphic design template elements
+STYLE: Fashion brand product image. Editorial. Aspirational. Not craft blog.

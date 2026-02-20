@@ -1,0 +1,15 @@
+Using this photo create a minimal, elegant Pinterest pin.
+
+REQUIREMENTS:
+- Subtle background blur
+- Clean, minimal color palette (neutrals, pastels, monochrome)
+- Pinterest optimal dimensions (1000x1500px)
+- Subtle text: "{pattern_name}"
+- Small "Sinclair Patterns" branding
+- Clean serif or elegant fonts
+- Generous white space
+- Sophisticated aesthetic
+
+STYLE: Minimal, clean, elegant, understated
+
+Generate a refined, elegant Pinterest pin.

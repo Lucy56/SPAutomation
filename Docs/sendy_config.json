@@ -1,0 +1,17 @@
+{
+  "sendy_defaults": {
+    "track_opens": 2,
+    "track_clicks": 2,
+    "send_campaign": 0,
+    "notes": {
+      "track_opens": "2 = anonymous tracking",
+      "track_clicks": "2 = anonymous tracking",
+      "send_campaign": "0 = save as draft, 1 = send immediately"
+    }
+  },
+  "image_settings": {
+    "cloudfront_base": "https://d2ukt8mr71y5lh.cloudfront.net/MAIL/",
+    "s3_mail_folder": "MAIL",
+    "image_resolution_strategy": "Use first product image from Shopify product page if not found in S3"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "variant_name": "Educational",
+  "variant_id": "E",
+  "description": "Educational approach highlighting learning and skill-building",
+  "pinterest_metadata_template": {
+    "title": "Learn to Sew: {pattern_name} Pattern Tutorial",
+    "description": "Perfect for beginners! This {garment_type} pattern includes step-by-step tutorials and detailed illustrations. 📚✂️",
+    "keywords": [
+      "learn to sew",
+      "beginner sewing pattern",
+      "{garment_type} tutorial"
+    ],
+    "hashtags": [
+      "LearnToSew",
+      "SinclairPatterns",
+      "SewingTutorial"
+    ]
+  },
+  "performance_weight": 0.20,
+  "status": "active"
+}

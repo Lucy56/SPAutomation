@@ -1,0 +1,21 @@
+{
+  "variant_name": "Urgency & Trending",
+  "variant_id": "D",
+  "description": "Urgency-driven with scarcity messaging",
+  "pinterest_metadata_template": {
+    "title": "🔥 {pattern_name} - TRENDING Pattern 2026",
+    "description": "This {garment_type} pattern is flying off the shelves! Instant PDF download - start today! ⚡",
+    "keywords": [
+      "trending sewing pattern",
+      "popular pattern 2026",
+      "{garment_type} pattern"
+    ],
+    "hashtags": [
+      "TrendingPattern",
+      "SinclairPatterns",
+      "ViralSewing"
+    ]
+  },
+  "performance_weight": 0.20,
+  "status": "active"
+}

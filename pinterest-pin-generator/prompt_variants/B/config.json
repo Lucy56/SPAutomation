@@ -1,0 +1,21 @@
+{
+  "variant_name": "Minimal Elegant",
+  "variant_id": "B",
+  "description": "Minimal, elegant design with clean aesthetics",
+  "pinterest_metadata_template": {
+    "title": "{pattern_name} Sewing Pattern | Sinclair Patterns",
+    "description": "Elegant {garment_type} sewing pattern. Clean design, professional results. PDF download includes all sizes. ✨",
+    "keywords": [
+      "sewing pattern",
+      "minimalist fashion",
+      "{garment_type} pattern"
+    ],
+    "hashtags": [
+      "SewingPattern",
+      "SinclairPatterns",
+      "MinimalistFashion"
+    ]
+  },
+  "performance_weight": 0.20,
+  "status": "active"
+}

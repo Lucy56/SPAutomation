@@ -1,0 +1,21 @@
+{
+  "variant_name": "Lifestyle Story",
+  "variant_id": "C",
+  "description": "Lifestyle-focused with emotional storytelling",
+  "pinterest_metadata_template": {
+    "title": "Make Your Own {pattern_name} - Sewing Pattern",
+    "description": "Imagine wearing something you made yourself! This {garment_type} pattern is perfect for creating unique pieces. 💖✂️",
+    "keywords": [
+      "handmade wardrobe",
+      "sewing journey",
+      "{garment_type} DIY"
+    ],
+    "hashtags": [
+      "HandmadeWardrobe",
+      "SinclairPatterns",
+      "SewingJourney"
+    ]
+  },
+  "performance_weight": 0.20,
+  "status": "active"
+}

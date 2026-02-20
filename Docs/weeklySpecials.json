@@ -1,0 +1,43 @@
+{
+  "weekly_specials_history": [
+    {
+      "date": "2026-02-09",
+      "patterns": [
+        "Apollo Colorblocked Hoodie for Men",
+        "Lotte Colorblocked Hoodie for Women"
+      ],
+      "sale_ends": "2026-02-16",
+      "theme": "Colorblocked Hoodies"
+    },
+    {
+      "date": "2026-02-02",
+      "patterns": [
+        "Macy Knit Semi-Fitted Cowl Neck Top",
+        "Rosy Tie Front Cardigan",
+        "Selma Pleated Neckline Top & Tunic"
+      ],
+      "sale_ends": "2026-02-09",
+      "theme": "Classic Knit Essentials"
+    },
+    {
+      "date": "2026-01-27",
+      "patterns": [
+        "Libby Princess Seam Raglan Pullover",
+        "Sofia Shawl Collar Sweater",
+        "Dakota Peplum Tunic & Dress"
+      ],
+      "sale_ends": "2026-02-02",
+      "theme": "Refined Winter Transitions"
+    },
+    {
+      "date": "2026-01-19",
+      "patterns": [
+        "Crew Pullover and Hoodie (Women)",
+        "Crew Pullover for Men",
+        "Mimosa Lantern Style Dress"
+      ],
+      "sale_ends": "2026-01-25"
+    }
+  ],
+  "notes": "This file tracks weekly specials to prevent repeating patterns too frequently"
+}

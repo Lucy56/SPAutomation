@@ -1,0 +1,30 @@
+{
+  "free_patterns": [
+    {
+      "name": "Harper",
+      "source": "General free pattern",
+      "notes": "Cardigan - widely distributed"
+    },
+    {
+      "name": "Valley",
+      "source": "General free pattern",
+      "notes": "Dress - widely distributed"
+    },
+    {
+      "name": "Mojo",
+      "source": "Facebook group exclusive",
+      "notes": "Free pattern with code from Facebook group"
+    },
+    {
+      "name": "Sunset",
+      "source": "General free pattern",
+      "notes": "Pants - widely distributed"
+    }
+  ],
+  "filter_rules": {
+    "exclude_from_weekly_specials": true,
+    "exclude_from_rfm_analysis": true,
+    "track_for_acquisition_funnel": true,
+    "notes": "Free patterns should be excluded from paid pattern analysis but tracked for conversion funnel"
+  }
+}
