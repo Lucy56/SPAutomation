@@ -32,7 +32,7 @@ EMAIL_FROM = os.getenv("DEFAULT_FROM_EMAIL", "hello@sinclairpatterns.com")
 EMAIL_TO = os.getenv("NOTIFICATION_EMAIL", "hello@sinclairpatterns.com")
 
 # How often to run (in seconds)
-RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))  # Default: 1 hour
+RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "300"))  # Default: 5 minutes
 
 # Email notification interval
 EMAIL_NOTIFICATION_INTERVAL = int(os.getenv("EMAIL_NOTIFICATION_INTERVAL", "10000"))  # Every 10k records
