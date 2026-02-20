@@ -159,6 +159,7 @@ def get_last_sync_date(conn):
     """Get the date of the last successful sync"""
     cursor = conn.cursor()
 
+    # First try to get from sync_history
     cursor.execute("""
         SELECT last_order_date FROM sync_history
         WHERE status = 'completed'
@@ -167,13 +168,26 @@ def get_last_sync_date(conn):
     """)
 
     result = cursor.fetchone()
+
+    if result and result[0]:
+        cursor.close()
+        return result[0]
+
+    # If no sync history, check the latest order in database
+    cursor.execute("""
+        SELECT MAX(updated_at) FROM orders
+    """)
+
+    result = cursor.fetchone()
     cursor.close()
 
     if result and result[0]:
+        log(f"No sync history found, using latest order date: {result[0]}")
         return result[0]
 
-    # Default to 1 hour ago if no sync history
-    return (datetime.now() - timedelta(hours=1)).isoformat()
+    # Default to 24 hours ago if database is empty
+    log("No orders in database, starting from 24 hours ago")
+    return (datetime.now() - timedelta(hours=24)).isoformat()
 
 
 def fetch_recent_orders(token, since_date):
