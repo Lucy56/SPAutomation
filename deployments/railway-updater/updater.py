@@ -12,6 +12,9 @@ import psycopg2
 from psycopg2.extras import execute_values
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 # Configuration
@@ -20,13 +23,92 @@ SHOPIFY_API_KEY = os.getenv("SHOPIFY_API_KEY")
 SHOPIFY_API_SECRET = os.getenv("SHOPIFY_API_SECRET")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA")
 
+# Email configuration
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com.au")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USER = os.getenv("EMAIL_HOST_USER", "hello@sinclairpatterns.com")
+EMAIL_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_FROM = os.getenv("DEFAULT_FROM_EMAIL", "hello@sinclairpatterns.com")
+EMAIL_TO = os.getenv("NOTIFICATION_EMAIL", "hello@sinclairpatterns.com")
+
 # How often to run (in seconds)
 RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))  # Default: 1 hour
+
+# Email notification interval
+EMAIL_NOTIFICATION_INTERVAL = int(os.getenv("EMAIL_NOTIFICATION_INTERVAL", "10000"))  # Every 10k records
 
 
 def log(message):
     """Log with timestamp"""
     print(f"[{datetime.now().isoformat()}] {message}")
+
+
+def send_email(subject, body, html=False):
+    """Send email notification"""
+    if not EMAIL_PASSWORD:
+        log("⚠️  Email password not configured, skipping email notification")
+        return False
+
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = subject
+        msg['From'] = EMAIL_FROM
+        msg['To'] = EMAIL_TO
+
+        if html:
+            part = MIMEText(body, 'html')
+        else:
+            part = MIMEText(body, 'plain')
+
+        msg.attach(part)
+
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASSWORD)
+            server.send_message(msg)
+
+        log(f"✉️  Email sent: {subject}")
+        return True
+
+    except Exception as e:
+        log(f"⚠️  Failed to send email: {e}")
+        return False
+
+
+def send_progress_notification(orders_count, line_items_count, is_first=False, is_final=False):
+    """Send progress update email"""
+    if is_first:
+        subject = "🚀 Shopify Sync Started - First Record Imported"
+        body = f"""
+Shopify sync has started!
+
+First order imported successfully.
+Expected total: Will update every {EMAIL_NOTIFICATION_INTERVAL:,} records.
+
+Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+    elif is_final:
+        subject = "✅ Shopify Sync Complete"
+        body = f"""
+Shopify sync completed successfully!
+
+Orders updated: {orders_count:,}
+Line items updated: {line_items_count:,}
+Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+Next sync in {RUN_INTERVAL/3600:.1f} hours.
+"""
+    else:
+        subject = f"📊 Shopify Sync Progress: {orders_count:,} orders"
+        body = f"""
+Sync in progress...
+
+Orders processed so far: {orders_count:,}
+Line items processed: {line_items_count:,}
+Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+"""
+
+    send_email(subject, body)
 
 
 def get_shopify_token():
@@ -132,7 +214,7 @@ def fetch_recent_orders(token, since_date):
 
 
 def update_orders(conn, orders):
-    """Update orders in PostgreSQL"""
+    """Update orders in PostgreSQL with progress notifications"""
     if not orders:
         log("No orders to update")
         return 0, 0
@@ -140,8 +222,10 @@ def update_orders(conn, orders):
     cursor = conn.cursor()
     orders_updated = 0
     line_items_updated = 0
+    first_email_sent = False
+    last_notification_count = 0
 
-    for order in orders:
+    for idx, order in enumerate(orders, 1):
         utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
         shipping = order.get('shipping_address') or {}
         discount_codes = ','.join([dc['code'] for dc in order.get('discount_applications', [])])
@@ -222,8 +306,22 @@ def update_orders(conn, orders):
             )
             line_items_updated += len(line_items_data)
 
+        # Send first record notification
+        if not first_email_sent and orders_updated == 1:
+            send_progress_notification(orders_updated, line_items_updated, is_first=True)
+            first_email_sent = True
+
+        # Send progress notifications every EMAIL_NOTIFICATION_INTERVAL records
+        elif orders_updated - last_notification_count >= EMAIL_NOTIFICATION_INTERVAL:
+            send_progress_notification(orders_updated, line_items_updated)
+            last_notification_count = orders_updated
+
     conn.commit()
     cursor.close()
+
+    # Send final notification
+    if orders_updated > 0:
+        send_progress_notification(orders_updated, line_items_updated, is_final=True)
 
     return orders_updated, line_items_updated
 

@@ -7,7 +7,8 @@ Automated service that syncs Shopify orders to PostgreSQL database hourly.
 1. Connects to PostgreSQL database on Railway
 2. Fetches orders updated since last sync from Shopify
 3. Updates orders, line items, and tracks refunds
-4. Runs continuously every hour
+4. Sends email notifications (first record, every 10k records, completion summary)
+5. Runs continuously every hour with lock protection to prevent overlapping syncs
 
 ## Files
 
@@ -26,6 +27,15 @@ SHOPIFY_SHOP_URL=Sinclairp.myshopify.com
 SHOPIFY_API_KEY=your_api_key
 SHOPIFY_API_SECRET=your_api_secret
 UPDATE_INTERVAL=3600  # Optional: seconds between updates (default 1 hour)
+
+# Email notifications (optional)
+EMAIL_HOST=smtp.zoho.com.au  # SMTP server
+EMAIL_PORT=587  # SMTP port
+EMAIL_HOST_USER=hello@sinclairpatterns.com  # SMTP username
+EMAIL_HOST_PASSWORD=your_email_password  # SMTP password
+DEFAULT_FROM_EMAIL=hello@sinclairpatterns.com  # From address
+NOTIFICATION_EMAIL=hello@sinclairpatterns.com  # Notification recipient
+EMAIL_NOTIFICATION_INTERVAL=10000  # Send progress email every N records (default 10000)
 ```
 
 ## Deployment to Railway
@@ -55,6 +65,11 @@ Check logs in Railway dashboard to see:
 - Sync start/completion
 - Number of orders updated
 - Any errors
+
+Email notifications will be sent to the configured recipient:
+- **First record imported**: Confirms sync has started
+- **Every 10k records**: Progress updates during large syncs
+- **Completion summary**: Final count of orders and line items updated
 
 ## Local Testing
 
