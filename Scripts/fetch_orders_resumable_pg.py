@@ -319,13 +319,43 @@ if __name__ == '__main__':
         print("\n❌ Shopify credentials not set")
         exit(1)
 
-    # Step 1: Get Shopify token
-    print("\n[1/2] Getting Shopify access token...")
+    # Check if Railway updater is running
+    print("\n[1/3] Checking for running syncs...")
+    conn = psycopg2.connect(DATABASE_URL)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, sync_started_at
+        FROM sync_history
+        WHERE status = 'running'
+        ORDER BY sync_started_at DESC
+        LIMIT 1
+    """)
+    running_sync = cursor.fetchone()
+
+    if running_sync:
+        sync_id, started_at = running_sync
+        # Check if it's recent (less than 10 minutes old)
+        time_diff = (datetime.now() - started_at.replace(tzinfo=None)).total_seconds()
+        if time_diff < 600:  # 10 minutes
+            print(f"\n⚠️  WARNING: Railway updater is currently running!")
+            print(f"   Sync started at: {started_at}")
+            print(f"   This script can run concurrently, but may cause conflicts.")
+            response = input("\nContinue anyway? (yes/no): ")
+            if response.lower() not in ['yes', 'y']:
+                print("Cancelled. Wait for updater to finish or stop Railway service.")
+                conn.close()
+                exit(0)
+
+    conn.close()
+    print("  ✓ No conflicts detected")
+
+    # Step 2: Get Shopify token
+    print("\n[2/3] Getting Shopify access token...")
     token = get_shopify_token()
     print("  ✓ Token obtained")
 
-    # Step 2: Fetch orders
-    print("\n[2/2] Fetching orders...")
+    # Step 3: Fetch orders
+    print("\n[3/3] Fetching orders...")
     start_time = time.time()
 
     try:
