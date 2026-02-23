@@ -52,16 +52,29 @@ def get_shopify_token():
 
 
 def get_db_progress():
-    """Check how many orders are already in database"""
+    """Check how many orders are already in database and find the last contiguous date"""
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    # Get count and latest order
-    cursor.execute("SELECT COUNT(*), MAX(created_at), MAX(order_id) FROM orders")
-    count, last_date, last_id = cursor.fetchone()
+    # Get count
+    cursor.execute("SELECT COUNT(*) FROM orders")
+    count = cursor.fetchone()[0] or 0
+
+    if count == 0:
+        conn.close()
+        return 0, None, None
+
+    # Find the earliest date with orders to ensure we fill gaps
+    # We'll fetch from the beginning and skip duplicates
+    cursor.execute("SELECT MIN(created_at) FROM orders")
+    min_date = cursor.fetchone()[0]
+
+    # Get max order_id for skipping duplicates
+    cursor.execute("SELECT MAX(order_id) FROM orders")
+    max_id = cursor.fetchone()[0]
 
     conn.close()
-    return count or 0, last_date, last_id
+    return count, min_date, max_id
 
 
 def extract_utm_params(order):
@@ -84,7 +97,7 @@ def extract_utm_params(order):
         return None, None, None, None, None
 
 
-def save_orders_batch(orders, last_id=None):
+def save_orders_batch(orders):
     """Save a batch of orders to database immediately"""
     if not orders:
         return 0, 0
@@ -97,9 +110,8 @@ def save_orders_batch(orders, last_id=None):
 
     try:
         for order in orders:
-            # Skip if already in DB
-            if last_id and order['id'] <= last_id:
-                continue
+            # Don't skip - let ON CONFLICT handle duplicates
+            # This ensures we fill gaps in the data
 
             utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
             shipping = order.get('shipping_address') or {}
@@ -224,16 +236,19 @@ def fetch_all_orders_resumable(token):
     headers = {"X-Shopify-Access-Token": token}
 
     # Check progress
-    existing_count, last_date, last_id = get_db_progress()
+    existing_count, min_date, max_id = get_db_progress()
 
     if existing_count > 0:
         print(f"\n📊 Found {existing_count:,} orders already in database")
-        print(f"   Last order: {last_date} (ID: {last_id})")
-        print(f"   Resuming from this point...\n")
-        url = f"{shop_url}/admin/api/2024-10/orders.json?status=any&limit=250&order=created_at+asc&created_at_min={last_date}"
+        print(f"   Earliest order date: {min_date}")
+        print(f"   Max order ID: {max_id}")
+        print(f"   Fetching ALL orders from Shopify (will skip duplicates)...\n")
     else:
         print(f"\n📊 Starting fresh fetch (database is empty)\n")
-        url = f"{shop_url}/admin/api/2024-10/orders.json?status=any&limit=250&order=created_at+asc"
+
+    # Always fetch from beginning to fill gaps
+    # ON CONFLICT will skip duplicates
+    url = f"{shop_url}/admin/api/2024-10/orders.json?status=any&limit=250&order=created_at+asc"
 
     page_count = 0
     total_orders_saved = 0
@@ -255,7 +270,7 @@ def fetch_all_orders_resumable(token):
                 break
 
             # Save batch immediately
-            orders_saved, line_items_saved = save_orders_batch(orders, last_id)
+            orders_saved, line_items_saved = save_orders_batch(orders)
 
             total_orders_saved += orders_saved
             total_line_items_saved += line_items_saved
