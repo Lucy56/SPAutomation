@@ -98,21 +98,20 @@ def extract_utm_params(order):
 
 
 def save_orders_batch(orders):
-    """Save a batch of orders to database immediately"""
+    """Save a batch of orders to database in bulk"""
     if not orders:
         return 0, 0
 
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
-    orders_saved = 0
-    line_items_saved = 0
-
     try:
-        for order in orders:
-            # Don't skip - let ON CONFLICT handle duplicates
-            # This ensures we fill gaps in the data
+        # Prepare all order data for bulk insert
+        orders_data = []
+        all_line_items_data = []
+        order_ids_to_delete = []
 
+        for order in orders:
             utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
             shipping = order.get('shipping_address') or {}
             discount_codes = ','.join([dc['code'] for dc in order.get('discount_applications', []) if dc.get('code')])
@@ -127,73 +126,81 @@ def save_orders_batch(orders):
             for shipping_line in order.get('shipping_lines', []):
                 total_shipping += float(shipping_line.get('price', 0))
 
-            execute_values(
-                cursor,
-                """
-                INSERT INTO orders (
-                    order_id, order_number, order_name, created_at, updated_at, processed_at,
-                    customer_id, email, country, country_code, province, city,
-                    total_price, subtotal_price, total_tax, total_discounts, currency,
-                    referring_site, landing_site, source_name,
-                    utm_source, utm_medium, utm_campaign, utm_content, utm_term,
-                    financial_status, fulfillment_status, cancelled_at, cancel_reason,
-                    tags, note, discount_codes, gateway, total_shipping, checkout_id
-                ) VALUES %s
-                ON CONFLICT (order_id) DO UPDATE SET
-                    updated_at = EXCLUDED.updated_at,
-                    financial_status = EXCLUDED.financial_status,
-                    fulfillment_status = EXCLUDED.fulfillment_status,
-                    tags = EXCLUDED.tags,
-                    synced_at = CURRENT_TIMESTAMP
-                """,
-                [(
-                    order['id'], order.get('order_number'), order.get('name'),
-                    order.get('created_at'), order.get('updated_at'), order.get('processed_at'),
-                    order.get('customer', {}).get('id') if order.get('customer') else None,
-                    order.get('email'),
-                    shipping.get('country'), shipping.get('country_code'),
-                    shipping.get('province'), shipping.get('city'),
-                    float(order.get('total_price', 0)), float(order.get('subtotal_price', 0)),
-                    float(order.get('total_tax', 0)), float(order.get('total_discounts', 0)),
-                    order.get('currency'),
-                    order.get('referring_site'), order.get('landing_site'), order.get('source_name'),
-                    utm_source, utm_medium, utm_campaign, utm_content, utm_term,
-                    order.get('financial_status'), order.get('fulfillment_status'),
-                    order.get('cancelled_at'), order.get('cancel_reason'),
-                    order.get('tags'), order.get('note'), discount_codes,
-                    gateway, total_shipping, order.get('checkout_id')
-                )]
-            )
-            orders_saved += 1
+            orders_data.append((
+                order['id'], order.get('order_number'), order.get('name'),
+                order.get('created_at'), order.get('updated_at'), order.get('processed_at'),
+                order.get('customer', {}).get('id') if order.get('customer') else None,
+                order.get('email'),
+                shipping.get('country'), shipping.get('country_code'),
+                shipping.get('province'), shipping.get('city'),
+                float(order.get('total_price', 0)), float(order.get('subtotal_price', 0)),
+                float(order.get('total_tax', 0)), float(order.get('total_discounts', 0)),
+                order.get('currency'),
+                order.get('referring_site'), order.get('landing_site'), order.get('source_name'),
+                utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+                order.get('financial_status'), order.get('fulfillment_status'),
+                order.get('cancelled_at'), order.get('cancel_reason'),
+                order.get('tags'), order.get('note'), discount_codes,
+                gateway, total_shipping, order.get('checkout_id')
+            ))
 
-            # Delete old line items for this order
-            cursor.execute("DELETE FROM line_items WHERE order_id = %s", (order['id'],))
+            order_ids_to_delete.append(order['id'])
 
-            # Insert line items
-            line_items_data = []
+            # Collect line items
             for item in order.get('line_items', []):
-                line_items_data.append((
+                all_line_items_data.append((
                     item['id'], order['id'], item.get('product_id'), item.get('variant_id'),
                     item.get('title'), item.get('variant_title'), item.get('sku'), item.get('vendor'),
                     item.get('quantity'), float(item.get('price', 0)),
                     float(item.get('total_discount', 0)), item.get('product_type')
                 ))
 
-            if line_items_data:
-                execute_values(
-                    cursor,
-                    """
-                    INSERT INTO line_items (
-                        line_item_id, order_id, product_id, variant_id,
-                        product_title, variant_title, sku, vendor,
-                        quantity, price, total_discount, product_type
-                    ) VALUES %s
-                    """,
-                    line_items_data
-                )
-                line_items_saved += len(line_items_data)
+        # Bulk insert orders
+        execute_values(
+            cursor,
+            """
+            INSERT INTO orders (
+                order_id, order_number, order_name, created_at, updated_at, processed_at,
+                customer_id, email, country, country_code, province, city,
+                total_price, subtotal_price, total_tax, total_discounts, currency,
+                referring_site, landing_site, source_name,
+                utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+                financial_status, fulfillment_status, cancelled_at, cancel_reason,
+                tags, note, discount_codes, gateway, total_shipping, checkout_id
+            ) VALUES %s
+            ON CONFLICT (order_id) DO UPDATE SET
+                updated_at = EXCLUDED.updated_at,
+                financial_status = EXCLUDED.financial_status,
+                fulfillment_status = EXCLUDED.fulfillment_status,
+                tags = EXCLUDED.tags,
+                synced_at = CURRENT_TIMESTAMP
+            """,
+            orders_data
+        )
+
+        # Bulk delete old line items
+        if order_ids_to_delete:
+            cursor.execute(
+                "DELETE FROM line_items WHERE order_id = ANY(%s)",
+                (order_ids_to_delete,)
+            )
+
+        # Bulk insert line items
+        if all_line_items_data:
+            execute_values(
+                cursor,
+                """
+                INSERT INTO line_items (
+                    line_item_id, order_id, product_id, variant_id,
+                    product_title, variant_title, sku, vendor,
+                    quantity, price, total_discount, product_type
+                ) VALUES %s
+                """,
+                all_line_items_data
+            )
 
         conn.commit()
+        return len(orders_data), len(all_line_items_data)
 
     except Exception as e:
         conn.rollback()
