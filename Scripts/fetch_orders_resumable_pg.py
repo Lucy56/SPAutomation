@@ -282,8 +282,8 @@ def fetch_all_orders_resumable(token):
             total_orders_saved += orders_saved
             total_line_items_saved += line_items_saved
 
-            print(f"  Page {page_count}: Saved {orders_saved} orders, {line_items_saved} line items | "
-                  f"Total: {existing_count + total_orders_saved:,}")
+            print(f"  Page {page_count}: Processed {orders_saved} orders, {line_items_saved} line items | "
+                  f"Processed so far: {total_orders_saved:,}")
 
             # Check for pagination
             link_header = response.headers.get('Link', '')
@@ -304,10 +304,17 @@ def fetch_all_orders_resumable(token):
                 break
 
         except KeyboardInterrupt:
+            # Get actual count from database
+            conn_check = psycopg2.connect(DATABASE_URL)
+            cursor_check = conn_check.cursor()
+            cursor_check.execute("SELECT COUNT(*) FROM orders")
+            actual_count = cursor_check.fetchone()[0]
+            conn_check.close()
+
             print(f"\n\n⚠️  Interrupted by user")
-            print(f"    Saved: {total_orders_saved:,} new orders")
-            print(f"    Total in DB: {existing_count + total_orders_saved:,}")
-            print(f"    Run script again to resume from here.")
+            print(f"    Processed: {total_orders_saved:,} orders")
+            print(f"    Actual total in DB: {actual_count:,}")
+            print(f"    Run script again to continue from where you left off.")
             raise
 
         except Exception as e:
@@ -388,11 +395,11 @@ if __name__ == '__main__':
         print("FETCH COMPLETE!")
         print("="*70)
         print(f"  Pages fetched: {total_pages}")
-        print(f"  New orders saved: {new_orders:,}")
-        print(f"  New line items saved: {new_line_items:,}")
+        print(f"  Orders processed: {new_orders:,} (includes updates to existing orders)")
+        print(f"  Line items processed: {new_line_items:,}")
         print(f"  Time elapsed: {elapsed/60:.1f} minutes")
 
-        # Check database
+        # Check actual database counts
         conn = psycopg2.connect(DATABASE_URL)
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM orders")
@@ -401,7 +408,7 @@ if __name__ == '__main__':
         items_count = cursor.fetchone()[0]
         conn.close()
 
-        print(f"\nDatabase stats:")
+        print(f"\n📊 Actual database totals:")
         print(f"  Total orders: {db_count:,}")
         print(f"  Total line items: {items_count:,}")
         print("="*70)
