@@ -24,7 +24,7 @@ SHOPIFY_API_SECRET = os.getenv("SHOPIFY_API_SECRET")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA")
 
 # Email configuration
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com.au")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_USER = os.getenv("EMAIL_HOST_USER", "hello@sinclairpatterns.com")
 EMAIL_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
@@ -62,10 +62,18 @@ def send_email(subject, body, html=False):
 
         msg.attach(part)
 
-        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASSWORD)
-            server.send_message(msg)
+        # Use SSL (port 465) or TLS (port 587)
+        if EMAIL_PORT == 465:
+            # Use SMTP_SSL for port 465
+            with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT, timeout=30) as server:
+                server.login(EMAIL_USER, EMAIL_PASSWORD)
+                server.send_message(msg)
+        else:
+            # Use STARTTLS for port 587
+            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT, timeout=30) as server:
+                server.starttls()
+                server.login(EMAIL_USER, EMAIL_PASSWORD)
+                server.send_message(msg)
 
         log(f"✉️  Email sent: {subject}")
         return True
