@@ -242,7 +242,12 @@ def update_orders(conn, orders):
     for idx, order in enumerate(orders, 1):
         utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
         shipping = order.get('shipping_address') or {}
-        discount_codes = ','.join([dc['code'] for dc in order.get('discount_applications', [])])
+
+        # Handle discount codes safely - discount_applications may have different structures
+        try:
+            discount_codes = ','.join([dc.get('code', '') for dc in order.get('discount_applications', []) if dc.get('code')])
+        except:
+            discount_codes = ''
 
         # Get gateway (payment method)
         gateway = None
