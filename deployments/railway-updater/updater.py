@@ -123,15 +123,35 @@ def get_order_stats(conn):
         avg_per_day_amount = last_30_days_amount / 30.0 if last_30_days_amount > 0 else 0
 
         # Get top 10 patterns in last 30 days
-        # Revenue = (price * quantity) - discount to get actual amount paid
+        # Revenue = (price * quantity) - line_discount - proportional_order_discount
+        # Proportional order discount = (line_item_subtotal / order_subtotal_from_lines) * order_total_discounts
+        # We calculate order subtotal from line items because Shopify's subtotal_price is post-discount
         cursor.execute("""
+            WITH order_subtotals AS (
+                SELECT
+                    order_id,
+                    SUM(quantity * price) as calculated_subtotal
+                FROM line_items
+                GROUP BY order_id
+            )
             SELECT
                 li.product_title,
                 COUNT(DISTINCT o.order_id) as order_count,
                 SUM(li.quantity) as total_quantity,
-                COALESCE(SUM((li.quantity * li.price) - li.total_discount), 0) as total_revenue
+                COALESCE(SUM(
+                    (li.quantity * li.price)
+                    - li.total_discount
+                    - (
+                        CASE
+                            WHEN os.calculated_subtotal > 0
+                            THEN ((li.quantity * li.price) / os.calculated_subtotal) * o.total_discounts
+                            ELSE 0
+                        END
+                    )
+                ), 0) as total_revenue
             FROM line_items li
             JOIN orders o ON li.order_id = o.order_id
+            JOIN order_subtotals os ON o.order_id = os.order_id
             WHERE o.created_at >= NOW() - INTERVAL '30 days'
             AND o.financial_status != 'pending'
             AND li.product_title IS NOT NULL
