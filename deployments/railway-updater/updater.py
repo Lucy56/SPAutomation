@@ -24,9 +24,6 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA
 # How often to run (in seconds)
 RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "300"))  # Default: 5 minutes
 
-# Email notification interval
-EMAIL_NOTIFICATION_INTERVAL = int(os.getenv("EMAIL_NOTIFICATION_INTERVAL", "10000"))  # Every 10k records
-
 # Initialize email service
 email_service = EmailService()
 
@@ -123,7 +120,7 @@ def get_order_stats(conn):
 
 
 def send_sync_complete_notification(orders_count, line_items_count, stats=None):
-    """Send sync completion email with aggregate stats"""
+    """Send sync completion email with aggregate stats to ss@muffinsky.com"""
     subject = "✅ Shopify Sync Complete"
 
     body = f"""Shopify sync completed successfully!
@@ -154,11 +151,11 @@ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 Next sync in {RUN_INTERVAL/60:.0f} minutes.
 """
 
-    send_email(subject, body)
+    send_report(subject, body)
 
 
 def send_sync_error_notification(error_message, orders_processed=0):
-    """Send email notification when sync fails"""
+    """Send email notification when sync fails to ss@muffinsky.com"""
     subject = "❌ Shopify Sync Failed"
 
     body = f"""Shopify sync encountered an error!
@@ -171,7 +168,7 @@ Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 The sync will retry in {RUN_INTERVAL/60:.0f} minutes.
 """
 
-    send_email(subject, body)
+    send_report(subject, body)
 
 
 def get_shopify_token():
@@ -299,8 +296,6 @@ def update_orders(conn, orders):
     cursor = conn.cursor()
     orders_updated = 0
     line_items_updated = 0
-    first_email_sent = False
-    last_notification_count = 0
 
     for idx, order in enumerate(orders, 1):
         utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
@@ -388,22 +383,8 @@ def update_orders(conn, orders):
             )
             line_items_updated += len(line_items_data)
 
-        # Send first record notification
-        if not first_email_sent and orders_updated == 1:
-            send_progress_notification(orders_updated, line_items_updated, is_first=True)
-            first_email_sent = True
-
-        # Send progress notifications every EMAIL_NOTIFICATION_INTERVAL records
-        elif orders_updated - last_notification_count >= EMAIL_NOTIFICATION_INTERVAL:
-            send_progress_notification(orders_updated, line_items_updated)
-            last_notification_count = orders_updated
-
     conn.commit()
     cursor.close()
-
-    # Send final notification
-    if orders_updated > 0:
-        send_progress_notification(orders_updated, line_items_updated, is_final=True)
 
     return orders_updated, line_items_updated
 
