@@ -71,28 +71,29 @@ def get_order_stats(conn, sync_order_details=None):
             this_sync_amount = 0
             this_sync_orders = []
 
-        # Get today's stats (Shop timezone: Pacific Time with DST)
+        # Get today's stats (Shop timezone: PST / UTC-8 fixed offset)
+        # Shopify uses PST year-round (UTC-8), so subtract 8 hours from UTC
         cursor.execute("""
             SELECT
                 COUNT(*) as count,
                 COALESCE(SUM(total_price), 0) as total_amount
             FROM orders
-            WHERE DATE(created_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Los_Angeles') =
-                  DATE(NOW() AT TIME ZONE 'America/Los_Angeles')
+            WHERE DATE(created_at - INTERVAL '8 hours') =
+                  DATE(NOW() - INTERVAL '8 hours')
             AND financial_status != 'pending'
         """)
         today = cursor.fetchone()
         today_count = today[0] if today else 0
         today_amount = float(today[1]) if today else 0
 
-        # Get this week's stats (Monday to Sunday in Pacific Time with DST)
+        # Get this week's stats (Monday to Sunday in PST / UTC-8)
         cursor.execute("""
             SELECT
                 COUNT(*) as count,
                 COALESCE(SUM(total_price), 0) as total_amount
             FROM orders
-            WHERE (created_at AT TIME ZONE 'UTC' AT TIME ZONE 'America/Los_Angeles') >=
-                  DATE_TRUNC('week', (NOW() AT TIME ZONE 'America/Los_Angeles'))
+            WHERE (created_at - INTERVAL '8 hours') >=
+                  DATE_TRUNC('week', (NOW() - INTERVAL '8 hours'))
             AND financial_status != 'pending'
         """)
         week = cursor.fetchone()
