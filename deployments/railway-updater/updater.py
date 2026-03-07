@@ -159,7 +159,12 @@ def get_order_stats(conn):
 
 def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     """Send sync completion email with aggregate stats to ss@muffinsky.com"""
-    subject = "✅ Shopify Sync Complete"
+    # Get Brisbane time (UTC+10)
+    from datetime import timezone, timedelta
+    bne_tz = timezone(timedelta(hours=10))
+    bne_time = datetime.now(bne_tz).strftime('%Y-%m-%d %H:%M:%S')
+
+    subject = "Shopify Sync Complete"
 
     # Build HTML email
     body = f"""<!DOCTYPE html>
@@ -167,27 +172,29 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {{ font-family: 'Lato', Arial, sans-serif; line-height: 1.5; color: #333; font-size: 14px; }}
+        body {{ font-family: 'Lato', Arial, sans-serif; line-height: 1.5; color: #333; font-size: 14px; margin: 0; padding: 0; }}
         .header {{
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
             text-align: center;
         }}
-        .header h2 {{ margin: 0; font-size: 18px; font-weight: 400; }}
-        .content {{ padding: 20px; }}
+        .header-title {{ margin: 0; font-size: 16px; font-weight: 400; }}
+        .content {{ padding: 20px; max-width: 800px; margin: 0 auto; }}
         .sync-info {{
-            background-color: #f5f5f5;
-            padding: 12px;
+            background-color: #f9f9ff;
+            padding: 15px;
             margin: 15px 0;
             border-left: 4px solid #667eea;
             font-size: 13px;
         }}
-        h3 {{
-            font-size: 15px;
+        .section-title {{
+            font-size: 14px;
             font-weight: 600;
             color: #667eea;
             margin: 20px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }}
         table {{ width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }}
         th {{
@@ -198,37 +205,37 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
             font-weight: 600;
             font-size: 13px;
         }}
-        td {{ padding: 8px; border-bottom: 1px solid #ddd; }}
+        td {{ padding: 8px; border-bottom: 1px solid #e5e5e5; }}
         tr:hover {{ background-color: #f9f9ff; }}
-        .number {{ text-align: right; }}
+        .number {{ text-align: right; font-family: 'Courier New', monospace; }}
         .pattern-item {{
-            padding: 8px;
-            margin: 4px 0;
+            padding: 10px;
+            margin: 5px 0;
             background-color: #f9f9ff;
             border-left: 3px solid #667eea;
             font-size: 13px;
         }}
-        .pattern-stats {{ color: #666; font-size: 12px; }}
-        .footer {{ text-align: center; padding: 15px; color: #666; font-size: 12px; }}
+        .pattern-stats {{ color: #666; font-size: 12px; margin-top: 4px; }}
+        .footer {{ text-align: center; padding: 20px; color: #999; font-size: 11px; border-top: 1px solid #e5e5e5; margin-top: 20px; }}
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>✅ Shopify Sync Complete</h2>
+        <div class="header-title">Shopify Sync Complete</div>
     </div>
 
     <div class="content">
         <div class="sync-info">
-            <strong>This Sync:</strong><br>
-            • Orders imported/updated: <strong>{orders_count:,}</strong><br>
-            • Line items processed: <strong>{line_items_count:,}</strong>"""
+            <strong>This Sync ({bne_time} BNE)</strong><br>
+            Orders imported/updated: <strong>{orders_count:,}</strong><br>
+            Line items processed: <strong>{line_items_count:,}</strong>"""
 
     if stats:
         body += f"""<br>
-            • Total amount: <strong>${stats['this_sync']['amount']:,.2f}</strong>
+            Total amount: <strong>${stats['this_sync']['amount']:,.2f}</strong>
         </div>
 
-        <h3>Sales Summary</h3>
+        <div class="section-title">Sales Summary</div>
         <table>
             <tr>
                 <th>Period</th>
@@ -267,7 +274,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
             </tr>
         </table>
 
-        <h3>Top 10 Patterns (Last 30 Days)</h3>"""
+        <div class="section-title">Top 10 Patterns (Last 30 Days)</div>"""
 
         # Add top patterns if available
         if 'top_patterns' in stats and stats['top_patterns']:
@@ -279,7 +286,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
                 body += f"""
         <div class="pattern-item">
             <strong>{idx}. {product_title}</strong><br>
-            <span class="pattern-stats">Orders: {order_count:,} | Qty: {total_quantity:,} | Revenue: ${total_revenue:,.2f}</span>
+            <div class="pattern-stats">Orders: {order_count:,} | Qty: {total_quantity:,} | Revenue: ${total_revenue:,.2f}</div>
         </div>"""
         else:
             body += """
@@ -289,8 +296,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     </div>
 
     <div class="footer">
-        <p>Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}<br>
-        Next sync in {RUN_INTERVAL/60:.0f} minutes.</p>
+        Next sync in {RUN_INTERVAL/60:.0f} minutes
     </div>
 </body>
 </html>"""
@@ -300,7 +306,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
 
 def send_sync_error_notification(error_message, orders_processed=0):
     """Send email notification when sync fails to ss@muffinsky.com"""
-    subject = "❌ Shopify Sync Failed"
+    subject = "Shopify Sync Failed"
 
     body = f"""Shopify sync encountered an error!
 
