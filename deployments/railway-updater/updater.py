@@ -92,18 +92,18 @@ def get_order_stats(conn):
         week_count = week[0] if week else 0
         week_amount = float(week[1]) if week else 0
 
-        # Get this month's stats
+        # Get last 14 days stats
         cursor.execute("""
             SELECT
                 COUNT(*) as count,
                 COALESCE(SUM(total_price), 0) as total_amount
             FROM orders
-            WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)
+            WHERE created_at >= NOW() - INTERVAL '14 days'
             AND financial_status != 'pending'
         """)
-        month = cursor.fetchone()
-        month_count = month[0] if month else 0
-        month_amount = float(month[1]) if month else 0
+        last_14_days = cursor.fetchone()
+        last_14_days_count = last_14_days[0] if last_14_days else 0
+        last_14_days_amount = float(last_14_days[1]) if last_14_days else 0
 
         # Get last 30 days stats
         cursor.execute("""
@@ -146,7 +146,7 @@ def get_order_stats(conn):
             'this_sync': {'count': this_sync_count, 'amount': this_sync_amount},
             'today': {'count': today_count, 'amount': today_amount},
             'week': {'count': week_count, 'amount': week_amount},
-            'month': {'count': month_count, 'amount': month_amount},
+            'last_14_days': {'count': last_14_days_count, 'amount': last_14_days_amount},
             'last_30_days': {'count': last_30_days_count, 'amount': last_30_days_amount},
             'avg_per_day': {'count': avg_per_day_count, 'amount': avg_per_day_amount},
             'top_patterns': top_patterns
@@ -220,9 +220,9 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
                 <td class="number">${stats['week']['amount']:,.2f}</td>
             </tr>
             <tr>
-                <td>This Month</td>
-                <td class="number">{stats['month']['count']:,}</td>
-                <td class="number">${stats['month']['amount']:,.2f}</td>
+                <td>Last 14 Days</td>
+                <td class="number">{stats['last_14_days']['count']:,}</td>
+                <td class="number">${stats['last_14_days']['amount']:,.2f}</td>
             </tr>
             <tr>
                 <td>Last 30 Days</td>
@@ -630,7 +630,7 @@ def run_update():
             log(f"  Now (this sync):  {stats['this_sync']['count']:>6,} orders | ${stats['this_sync']['amount']:>10,.2f}")
             log(f"  Today:            {stats['today']['count']:>6,} orders | ${stats['today']['amount']:>10,.2f}")
             log(f"  This Week:        {stats['week']['count']:>6,} orders | ${stats['week']['amount']:>10,.2f}")
-            log(f"  This Month:       {stats['month']['count']:>6,} orders | ${stats['month']['amount']:>10,.2f}")
+            log(f"  Last 14 Days:     {stats['last_14_days']['count']:>6,} orders | ${stats['last_14_days']['amount']:>10,.2f}")
             log(f"  Last 30 Days:     {stats['last_30_days']['count']:>6,} orders | ${stats['last_30_days']['amount']:>10,.2f}")
             log(f"  Avg/Day (30d):    {stats['avg_per_day']['count']:>6,.1f} orders | ${stats['avg_per_day']['amount']:>10,.2f}")
         log("="*70)
