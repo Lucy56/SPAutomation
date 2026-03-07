@@ -167,18 +167,49 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {{ font-family: 'Lato', Arial, sans-serif; line-height: 1.6; color: #333; }}
-        .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
+        body {{ font-family: 'Lato', Arial, sans-serif; line-height: 1.5; color: #333; font-size: 14px; }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }}
+        .header h2 {{ margin: 0; font-size: 18px; font-weight: 400; }}
         .content {{ padding: 20px; }}
-        .sync-info {{ background-color: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }}
-        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
-        th {{ background-color: #333; color: white; padding: 12px; text-align: left; }}
-        td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
-        tr:hover {{ background-color: #f5f5f5; }}
+        .sync-info {{
+            background-color: #f5f5f5;
+            padding: 12px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            font-size: 13px;
+        }}
+        h3 {{
+            font-size: 15px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 20px 0 10px 0;
+        }}
+        table {{ width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }}
+        th {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }}
+        td {{ padding: 8px; border-bottom: 1px solid #ddd; }}
+        tr:hover {{ background-color: #f9f9ff; }}
         .number {{ text-align: right; }}
-        .pattern-item {{ padding: 10px; margin: 5px 0; background-color: #f9f9f9; border-left: 3px solid #2196F3; }}
-        .pattern-stats {{ color: #666; font-size: 0.9em; }}
-        .footer {{ text-align: center; padding: 20px; color: #666; font-size: 0.9em; }}
+        .pattern-item {{
+            padding: 8px;
+            margin: 4px 0;
+            background-color: #f9f9ff;
+            border-left: 3px solid #667eea;
+            font-size: 13px;
+        }}
+        .pattern-stats {{ color: #666; font-size: 12px; }}
+        .footer {{ text-align: center; padding: 15px; color: #666; font-size: 12px; }}
     </style>
 </head>
 <body>
