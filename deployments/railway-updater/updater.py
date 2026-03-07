@@ -165,8 +165,9 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     body = f"""<!DOCTYPE html>
 <html>
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        body {{ font-family: 'Lato', Arial, sans-serif; line-height: 1.6; color: #333; }}
         .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
         .content {{ padding: 20px; }}
         .sync-info {{ background-color: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }}
