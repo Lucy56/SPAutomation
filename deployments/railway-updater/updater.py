@@ -123,12 +123,13 @@ def get_order_stats(conn):
         avg_per_day_amount = last_30_days_amount / 30.0 if last_30_days_amount > 0 else 0
 
         # Get top 10 patterns in last 30 days
+        # Revenue = (price * quantity) - discount to get actual amount paid
         cursor.execute("""
             SELECT
                 li.product_title,
                 COUNT(DISTINCT o.order_id) as order_count,
                 SUM(li.quantity) as total_quantity,
-                COALESCE(SUM(li.quantity * li.price), 0) as total_revenue
+                COALESCE(SUM((li.quantity * li.price) - li.total_discount), 0) as total_revenue
             FROM line_items li
             JOIN orders o ON li.order_id = o.order_id
             WHERE o.created_at >= NOW() - INTERVAL '30 days'
