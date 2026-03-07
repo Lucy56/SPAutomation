@@ -164,6 +164,12 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     bne_tz = timezone(timedelta(hours=10))
     bne_time = datetime.now(bne_tz).strftime('%Y-%m-%d %H:%M:%S')
 
+    # Calculate hours remaining until end of PT day (midnight PT = UTC-8)
+    pt_tz = timezone(timedelta(hours=-8))
+    pt_now = datetime.now(pt_tz)
+    pt_midnight = pt_now.replace(hour=23, minute=59, second=59, microsecond=999999)
+    hours_left_pt = (pt_midnight - pt_now).total_seconds() / 3600
+
     subject = "Shopify Sync Complete"
 
     # Build HTML email
@@ -248,7 +254,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
                 <td class="number">${stats['this_sync']['amount']:,.2f}</td>
             </tr>
             <tr>
-                <td>Today</td>
+                <td>Today ({hours_left_pt:.1f}h left PT)</td>
                 <td class="number">{stats['today']['count']:,}</td>
                 <td class="number">${stats['today']['amount']:,.2f}</td>
             </tr>
