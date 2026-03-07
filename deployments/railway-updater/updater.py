@@ -105,13 +105,51 @@ def get_order_stats(conn):
         month_count = month[0] if month else 0
         month_amount = float(month[1]) if month else 0
 
+        # Get last 30 days stats
+        cursor.execute("""
+            SELECT
+                COUNT(*) as count,
+                COALESCE(SUM(total_price), 0) as total_amount
+            FROM orders
+            WHERE created_at >= NOW() - INTERVAL '30 days'
+            AND financial_status != 'pending'
+        """)
+        last_30_days = cursor.fetchone()
+        last_30_days_count = last_30_days[0] if last_30_days else 0
+        last_30_days_amount = float(last_30_days[1]) if last_30_days else 0
+
+        # Calculate average per day for last 30 days
+        avg_per_day_count = last_30_days_count / 30.0 if last_30_days_count > 0 else 0
+        avg_per_day_amount = last_30_days_amount / 30.0 if last_30_days_amount > 0 else 0
+
+        # Get top 10 patterns in last 30 days
+        cursor.execute("""
+            SELECT
+                li.product_title,
+                COUNT(DISTINCT o.order_id) as order_count,
+                SUM(li.quantity) as total_quantity,
+                COALESCE(SUM(li.quantity * li.price), 0) as total_revenue
+            FROM line_items li
+            JOIN orders o ON li.order_id = o.order_id
+            WHERE o.created_at >= NOW() - INTERVAL '30 days'
+            AND o.financial_status != 'pending'
+            AND li.product_title IS NOT NULL
+            GROUP BY li.product_title
+            ORDER BY order_count DESC
+            LIMIT 10
+        """)
+        top_patterns = cursor.fetchall()
+
         cursor.close()
 
         return {
             'this_sync': {'count': this_sync_count, 'amount': this_sync_amount},
             'today': {'count': today_count, 'amount': today_amount},
             'week': {'count': week_count, 'amount': week_amount},
-            'month': {'count': month_count, 'amount': month_amount}
+            'month': {'count': month_count, 'amount': month_amount},
+            'last_30_days': {'count': last_30_days_count, 'amount': last_30_days_amount},
+            'avg_per_day': {'count': avg_per_day_count, 'amount': avg_per_day_amount},
+            'top_patterns': top_patterns
         }
     except Exception as e:
         log(f"⚠️  Error getting order stats: {e}")
@@ -123,35 +161,109 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     """Send sync completion email with aggregate stats to ss@muffinsky.com"""
     subject = "✅ Shopify Sync Complete"
 
-    body = f"""Shopify sync completed successfully!
+    # Build HTML email
+    body = f"""<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .header {{ background-color: #4CAF50; color: white; padding: 20px; text-align: center; }}
+        .content {{ padding: 20px; }}
+        .sync-info {{ background-color: #f5f5f5; padding: 15px; margin: 15px 0; border-left: 4px solid #4CAF50; }}
+        table {{ width: 100%; border-collapse: collapse; margin: 20px 0; }}
+        th {{ background-color: #333; color: white; padding: 12px; text-align: left; }}
+        td {{ padding: 10px; border-bottom: 1px solid #ddd; }}
+        tr:hover {{ background-color: #f5f5f5; }}
+        .number {{ text-align: right; }}
+        .pattern-item {{ padding: 10px; margin: 5px 0; background-color: #f9f9f9; border-left: 3px solid #2196F3; }}
+        .pattern-stats {{ color: #666; font-size: 0.9em; }}
+        .footer {{ text-align: center; padding: 20px; color: #666; font-size: 0.9em; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>✅ Shopify Sync Complete</h2>
+    </div>
 
-This Sync:
-  • Orders imported/updated: {orders_count:,}
-  • Line items processed: {line_items_count:,}"""
+    <div class="content">
+        <div class="sync-info">
+            <strong>This Sync:</strong><br>
+            • Orders imported/updated: <strong>{orders_count:,}</strong><br>
+            • Line items processed: <strong>{line_items_count:,}</strong>"""
 
     if stats:
-        body += f"""
-  • Total amount: ${stats['this_sync']['amount']:,.2f}
+        body += f"""<br>
+            • Total amount: <strong>${stats['this_sync']['amount']:,.2f}</strong>
+        </div>
 
-Today (so far):
-  • Orders: {stats['today']['count']:,}
-  • Revenue: ${stats['today']['amount']:,.2f}
+        <h3>Sales Summary</h3>
+        <table>
+            <tr>
+                <th>Period</th>
+                <th class="number">Orders</th>
+                <th class="number">Revenue</th>
+            </tr>
+            <tr>
+                <td><strong>Now (this sync)</strong></td>
+                <td class="number">{stats['this_sync']['count']:,}</td>
+                <td class="number">${stats['this_sync']['amount']:,.2f}</td>
+            </tr>
+            <tr>
+                <td>Today</td>
+                <td class="number">{stats['today']['count']:,}</td>
+                <td class="number">${stats['today']['amount']:,.2f}</td>
+            </tr>
+            <tr>
+                <td>This Week</td>
+                <td class="number">{stats['week']['count']:,}</td>
+                <td class="number">${stats['week']['amount']:,.2f}</td>
+            </tr>
+            <tr>
+                <td>This Month</td>
+                <td class="number">{stats['month']['count']:,}</td>
+                <td class="number">${stats['month']['amount']:,.2f}</td>
+            </tr>
+            <tr>
+                <td>Last 30 Days</td>
+                <td class="number">{stats['last_30_days']['count']:,}</td>
+                <td class="number">${stats['last_30_days']['amount']:,.2f}</td>
+            </tr>
+            <tr style="background-color: #e8f5e9;">
+                <td><strong>Avg/Day (30d)</strong></td>
+                <td class="number"><strong>{stats['avg_per_day']['count']:.1f}</strong></td>
+                <td class="number"><strong>${stats['avg_per_day']['amount']:,.2f}</strong></td>
+            </tr>
+        </table>
 
-This Week (so far):
-  • Orders: {stats['week']['count']:,}
-  • Revenue: ${stats['week']['amount']:,.2f}
+        <h3>Top 10 Patterns (Last 30 Days)</h3>"""
 
-This Month (so far):
-  • Orders: {stats['month']['count']:,}
-  • Revenue: ${stats['month']['amount']:,.2f}
-"""
+        # Add top patterns if available
+        if 'top_patterns' in stats and stats['top_patterns']:
+            for idx, pattern in enumerate(stats['top_patterns'], 1):
+                product_title = pattern[0]
+                order_count = pattern[1]
+                total_quantity = pattern[2]
+                total_revenue = float(pattern[3])
+                body += f"""
+        <div class="pattern-item">
+            <strong>{idx}. {product_title}</strong><br>
+            <span class="pattern-stats">Orders: {order_count:,} | Qty: {total_quantity:,} | Revenue: ${total_revenue:,.2f}</span>
+        </div>"""
+        else:
+            body += """
+        <p>No pattern data available</p>"""
 
     body += f"""
-Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Next sync in {RUN_INTERVAL/60:.0f} minutes.
-"""
+    </div>
 
-    send_report(subject, body)
+    <div class="footer">
+        <p>Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}<br>
+        Next sync in {RUN_INTERVAL/60:.0f} minutes.</p>
+    </div>
+</body>
+</html>"""
+
+    send_report(subject, body, html=True)
 
 
 def send_sync_error_notification(error_message, orders_processed=0):
