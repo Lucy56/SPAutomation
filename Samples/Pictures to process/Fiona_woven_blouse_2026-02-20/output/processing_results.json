@@ -1,0 +1,50 @@
+[
+  {
+    "success": true,
+    "input": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/Fiona_woven_blouse_Katie_Gilmore_079.jpg",
+    "output": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/output/enhanced_Fiona_woven_blouse_Katie_Gilmore_079.jpg",
+    "analysis": {
+      "brightness_adjustment": 0.1,
+      "contrast_adjustment": 1.1,
+      "color_saturation": 1.1,
+      "sharpness": 1.2,
+      "skin_tone_warmth": 0.05,
+      "subject_area": "Centered in the frame, occupying the majority of the space.",
+      "background_complexity": "moderate",
+      "recommendations": "Brighten the image slightly and increase contrast to make the subject and red top pop. Boost saturation for more vibrant colors and add a touch of warmth to the skin tones. Enhance sharpness for clarity."
+    },
+    "processing_time": 12.687556
+  },
+  {
+    "success": true,
+    "input": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/Fiona_woven_blouse_Jill_Schams_066.jpg",
+    "output": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/output/enhanced_Fiona_woven_blouse_Jill_Schams_066.jpg",
+    "analysis": {
+      "brightness_adjustment": 0.1,
+      "contrast_adjustment": 1.1,
+      "color_saturation": 1.1,
+      "sharpness": 1.2,
+      "skin_tone_warmth": 0.05,
+      "subject_area": "Centrally located, filling the majority of the frame.",
+      "background_complexity": "simple",
+      "recommendations": "Slightly brighten and add contrast to make the subject and shirt pop. Boost saturation for vibrancy and add a little warmth to skin tones for a healthier look. Enhance sharpness to define details."
+    },
+    "processing_time": 11.969394
+  },
+  {
+    "success": true,
+    "input": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/Fiona_woven_blouse_Charlotte_Chen_031.jpg",
+    "output": "/Users/sanna/Dev/Experiments/SinclairHelper/Samples/Pictures to process/Fiona_woven_blouse_2026-02-20/output/enhanced_Fiona_woven_blouse_Charlotte_Chen_031.jpg",
+    "analysis": {
+      "brightness_adjustment": 0.1,
+      "contrast_adjustment": 1.1,
+      "color_saturation": 1.05,
+      "sharpness": 1.1,
+      "skin_tone_warmth": 0.05,
+      "subject_area": "Centered in the frame, standing from behind",
+      "background_complexity": "simple",
+      "recommendations": "Slightly brighten and add contrast to make the subject pop. Warm the skin tones slightly and boost the colors of the garment for a more vibrant look. Sharpen to define the fabric details."
+    },
+    "processing_time": 8.914379
+  }
+]

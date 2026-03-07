@@ -52,37 +52,123 @@ def send_report(subject, body, html=False):
     return result
 
 
-def send_progress_notification(orders_count, line_items_count, is_first=False, is_final=False):
-    """Send progress update email"""
-    if is_first:
-        subject = "🚀 Shopify Sync Started - First Record Imported"
-        body = f"""
-Shopify sync has started!
+def get_order_stats(conn):
+    """Get aggregate order statistics from database"""
+    cursor = conn.cursor()
 
-First order imported successfully.
-Expected total: Will update every {EMAIL_NOTIFICATION_INTERVAL:,} records.
+    try:
+        # Get stats for this sync (imported in this session)
+        cursor.execute("""
+            SELECT
+                COUNT(*) as count,
+                COALESCE(SUM(total_price), 0) as total_amount
+            FROM orders
+            WHERE synced_at >= NOW() - INTERVAL '10 minutes'
+        """)
+        this_sync = cursor.fetchone()
+        this_sync_count = this_sync[0] if this_sync else 0
+        this_sync_amount = float(this_sync[1]) if this_sync else 0
 
-Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        # Get today's stats
+        cursor.execute("""
+            SELECT
+                COUNT(*) as count,
+                COALESCE(SUM(total_price), 0) as total_amount
+            FROM orders
+            WHERE DATE(created_at) = CURRENT_DATE
+            AND financial_status != 'pending'
+        """)
+        today = cursor.fetchone()
+        today_count = today[0] if today else 0
+        today_amount = float(today[1]) if today else 0
+
+        # Get this week's stats (Monday to Sunday)
+        cursor.execute("""
+            SELECT
+                COUNT(*) as count,
+                COALESCE(SUM(total_price), 0) as total_amount
+            FROM orders
+            WHERE created_at >= DATE_TRUNC('week', CURRENT_DATE)
+            AND financial_status != 'pending'
+        """)
+        week = cursor.fetchone()
+        week_count = week[0] if week else 0
+        week_amount = float(week[1]) if week else 0
+
+        # Get this month's stats
+        cursor.execute("""
+            SELECT
+                COUNT(*) as count,
+                COALESCE(SUM(total_price), 0) as total_amount
+            FROM orders
+            WHERE created_at >= DATE_TRUNC('month', CURRENT_DATE)
+            AND financial_status != 'pending'
+        """)
+        month = cursor.fetchone()
+        month_count = month[0] if month else 0
+        month_amount = float(month[1]) if month else 0
+
+        cursor.close()
+
+        return {
+            'this_sync': {'count': this_sync_count, 'amount': this_sync_amount},
+            'today': {'count': today_count, 'amount': today_amount},
+            'week': {'count': week_count, 'amount': week_amount},
+            'month': {'count': month_count, 'amount': month_amount}
+        }
+    except Exception as e:
+        log(f"⚠️  Error getting order stats: {e}")
+        cursor.close()
+        return None
+
+
+def send_sync_complete_notification(orders_count, line_items_count, stats=None):
+    """Send sync completion email with aggregate stats"""
+    subject = "✅ Shopify Sync Complete"
+
+    body = f"""Shopify sync completed successfully!
+
+This Sync:
+  • Orders imported/updated: {orders_count:,}
+  • Line items processed: {line_items_count:,}"""
+
+    if stats:
+        body += f"""
+  • Total amount: ${stats['this_sync']['amount']:,.2f}
+
+Today (so far):
+  • Orders: {stats['today']['count']:,}
+  • Revenue: ${stats['today']['amount']:,.2f}
+
+This Week (so far):
+  • Orders: {stats['week']['count']:,}
+  • Revenue: ${stats['week']['amount']:,.2f}
+
+This Month (so far):
+  • Orders: {stats['month']['count']:,}
+  • Revenue: ${stats['month']['amount']:,.2f}
 """
-    elif is_final:
-        subject = "✅ Shopify Sync Complete"
-        body = f"""
-Shopify sync completed successfully!
 
-Orders updated: {orders_count:,}
-Line items updated: {line_items_count:,}
+    body += f"""
 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-Next sync in {RUN_INTERVAL/3600:.1f} hours.
+Next sync in {RUN_INTERVAL/60:.0f} minutes.
 """
-    else:
-        subject = f"📊 Shopify Sync Progress: {orders_count:,} orders"
-        body = f"""
-Sync in progress...
 
-Orders processed so far: {orders_count:,}
-Line items processed: {line_items_count:,}
+    send_email(subject, body)
+
+
+def send_sync_error_notification(error_message, orders_processed=0):
+    """Send email notification when sync fails"""
+    subject = "❌ Shopify Sync Failed"
+
+    body = f"""Shopify sync encountered an error!
+
+Error: {error_message}
+
+Orders processed before error: {orders_processed:,}
 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+The sync will retry in {RUN_INTERVAL/60:.0f} minutes.
 """
 
     send_email(subject, body)
@@ -430,6 +516,10 @@ def run_update():
         log("Updating database...")
         orders_updated, line_items_updated = update_orders(conn, orders)
 
+        # Get aggregate stats before closing connection
+        log("Gathering statistics...")
+        stats = get_order_stats(conn)
+
         # Release lock and record completion
         last_order_date = max([o['updated_at'] for o in orders]) if orders else last_sync
         release_lock(conn, lock_id, len(orders), last_order_date, 'completed')
@@ -440,7 +530,17 @@ def run_update():
         log("SYNC COMPLETE!")
         log(f"  Orders updated: {orders_updated}")
         log(f"  Line items updated: {line_items_updated}")
+        if stats:
+            log(f"  Today's orders: {stats['today']['count']:,} (${stats['today']['amount']:,.2f})")
+            log(f"  This week: {stats['week']['count']:,} (${stats['week']['amount']:,.2f})")
+            log(f"  This month: {stats['month']['count']:,} (${stats['month']['amount']:,.2f})")
         log("="*70)
+
+        # Send completion notification with stats
+        if orders_updated > 0:
+            send_sync_complete_notification(orders_updated, line_items_updated, stats)
+        else:
+            log("No new orders to sync, skipping email notification")
 
         return True
 
@@ -448,6 +548,10 @@ def run_update():
         log(f"❌ ERROR: {e}")
         import traceback
         traceback.print_exc()
+
+        # Send error notification
+        error_message = f"{type(e).__name__}: {str(e)}"
+        send_sync_error_notification(error_message, orders_processed=0)
 
         try:
             if conn and lock_id:
