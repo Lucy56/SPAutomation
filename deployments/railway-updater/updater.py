@@ -214,7 +214,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
         }}
         td {{ padding: 8px; border-bottom: 1px solid #e5e5e5; }}
         tr:hover {{ background-color: #f9f9ff; }}
-        .number {{ text-align: right; font-family: 'Courier New', monospace; }}
+        .number {{ text-align: right; }}
         .pattern-item {{
             padding: 10px;
             margin: 5px 0;
