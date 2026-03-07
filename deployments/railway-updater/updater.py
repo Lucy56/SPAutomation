@@ -607,8 +607,8 @@ def check_and_acquire_lock(conn):
 
     if running_sync:
         sync_id, started_at = running_sync
-        # If running for more than 2 hours, consider it stale
-        if (datetime.now() - started_at.replace(tzinfo=None)).total_seconds() > 7200:
+        # If running for more than 1 hour, consider it stale
+        if (datetime.now() - started_at.replace(tzinfo=None)).total_seconds() > 3600:
             log(f"Found stale lock from {started_at}, clearing it...")
             cursor.execute("UPDATE sync_history SET status = 'timeout' WHERE id = %s", (sync_id,))
             conn.commit()
