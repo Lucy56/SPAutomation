@@ -22,7 +22,7 @@ SHOPIFY_API_SECRET = os.getenv("SHOPIFY_API_SECRET")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA")
 
 # How often to run (in seconds)
-RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "300"))  # Default: 5 minutes
+RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "3600"))  # Default: 1 hour
 
 # Initialize email service
 email_service = EmailService()
@@ -339,7 +339,7 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
     </div>
 
     <div class="footer">
-        Next sync in {RUN_INTERVAL/60:.0f} minutes
+        Next sync in {RUN_INTERVAL/3600:.0f} hour{'s' if RUN_INTERVAL != 3600 else ''}
     </div>
 </body>
 </html>"""
@@ -358,7 +358,7 @@ Error: {error_message}
 Orders processed before error: {orders_processed:,}
 Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-The sync will retry in {RUN_INTERVAL/60:.0f} minutes.
+The sync will retry in {RUN_INTERVAL/3600:.0f} hour{'s' if RUN_INTERVAL != 3600 else ''}.
 """
 
     send_report(subject, body)
