@@ -517,11 +517,8 @@ def run_update():
             log(f"  This month: {stats['month']['count']:,} (${stats['month']['amount']:,.2f})")
         log("="*70)
 
-        # Send completion notification with stats
-        if orders_updated > 0:
-            send_sync_complete_notification(orders_updated, line_items_updated, stats)
-        else:
-            log("No new orders to sync, skipping email notification")
+        # Send completion notification with stats (always send, even if 0 orders)
+        send_sync_complete_notification(orders_updated, line_items_updated, stats)
 
         return True
 
