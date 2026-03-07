@@ -49,22 +49,54 @@ def send_report(subject, body, html=False):
     return result
 
 
-def get_order_stats(conn):
+def get_order_stats(conn, updated_order_ids=None):
     """Get aggregate order statistics from database"""
     cursor = conn.cursor()
 
     try:
-        # Get stats for this sync (imported in this session)
-        cursor.execute("""
-            SELECT
-                COUNT(*) as count,
-                COALESCE(SUM(total_price), 0) as total_amount
-            FROM orders
-            WHERE synced_at >= NOW() - INTERVAL '10 minutes'
-        """)
-        this_sync = cursor.fetchone()
-        this_sync_count = this_sync[0] if this_sync else 0
-        this_sync_amount = float(this_sync[1]) if this_sync else 0
+        # Get stats for this sync (specific orders that were just updated)
+        if updated_order_ids:
+            # Use the specific order IDs from THIS sync
+            cursor.execute("""
+                SELECT
+                    COUNT(*) as count,
+                    COALESCE(SUM(total_price), 0) as total_amount
+                FROM orders
+                WHERE order_id = ANY(%s)
+            """, (updated_order_ids,))
+            this_sync = cursor.fetchone()
+            this_sync_count = this_sync[0] if this_sync else 0
+            this_sync_amount = float(this_sync[1]) if this_sync else 0
+
+            # Get order details for this sync
+            cursor.execute("""
+                SELECT order_number, total_price
+                FROM orders
+                WHERE order_id = ANY(%s)
+                ORDER BY created_at DESC
+            """, (updated_order_ids,))
+            this_sync_orders = cursor.fetchall()
+        else:
+            # Fallback to time-based query if no order IDs provided
+            cursor.execute("""
+                SELECT
+                    COUNT(*) as count,
+                    COALESCE(SUM(total_price), 0) as total_amount
+                FROM orders
+                WHERE synced_at >= NOW() - INTERVAL '10 minutes'
+            """)
+            this_sync = cursor.fetchone()
+            this_sync_count = this_sync[0] if this_sync else 0
+            this_sync_amount = float(this_sync[1]) if this_sync else 0
+
+            # Get order details for this sync
+            cursor.execute("""
+                SELECT order_number, total_price
+                FROM orders
+                WHERE synced_at >= NOW() - INTERVAL '10 minutes'
+                ORDER BY created_at DESC
+            """)
+            this_sync_orders = cursor.fetchall()
 
         # Get today's stats
         cursor.execute("""
@@ -164,7 +196,7 @@ def get_order_stats(conn):
         cursor.close()
 
         return {
-            'this_sync': {'count': this_sync_count, 'amount': this_sync_amount},
+            'this_sync': {'count': this_sync_count, 'amount': this_sync_amount, 'orders': this_sync_orders},
             'today': {'count': today_count, 'amount': today_amount},
             'week': {'count': week_count, 'amount': week_amount},
             'last_14_days': {'count': last_14_days_count, 'amount': last_14_days_amount},
@@ -258,8 +290,16 @@ def send_sync_complete_notification(orders_count, line_items_count, stats=None):
             Line items processed: <strong>{line_items_count:,}</strong>"""
 
     if stats:
+        # Build order details list
+        order_details = ""
+        if stats['this_sync'].get('orders'):
+            orders_list = []
+            for order_num, amount in stats['this_sync']['orders']:
+                orders_list.append(f"{order_num} (${float(amount):,.2f})")
+            order_details = f"<br>Orders: {', '.join(orders_list)}"
+
         body += f"""<br>
-            Total amount: <strong>${stats['this_sync']['amount']:,.2f}</strong>
+            Total amount: <strong>${stats['this_sync']['amount']:,.2f}</strong>{order_details}
         </div>
 
         <div class="section-title">Sales Summary</div>
@@ -468,13 +508,15 @@ def update_orders(conn, orders):
     """Update orders in PostgreSQL with progress notifications"""
     if not orders:
         log("No orders to update")
-        return 0, 0
+        return 0, 0, []
 
     cursor = conn.cursor()
     orders_updated = 0
     line_items_updated = 0
+    updated_order_ids = []
 
     for idx, order in enumerate(orders, 1):
+        updated_order_ids.append(order['id'])
         utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
         shipping = order.get('shipping_address') or {}
 
@@ -563,7 +605,7 @@ def update_orders(conn, orders):
     conn.commit()
     cursor.close()
 
-    return orders_updated, line_items_updated
+    return orders_updated, line_items_updated, updated_order_ids
 
 
 def check_and_acquire_lock(conn):
@@ -672,11 +714,11 @@ def run_update():
 
         # Update database
         log("Updating database...")
-        orders_updated, line_items_updated = update_orders(conn, orders)
+        orders_updated, line_items_updated, updated_order_ids = update_orders(conn, orders)
 
         # Get aggregate stats before closing connection
         log("Gathering statistics...")
-        stats = get_order_stats(conn)
+        stats = get_order_stats(conn, updated_order_ids)
 
         # Release lock and record completion
         last_order_date = max([o['updated_at'] for o in orders]) if orders else last_sync
