@@ -49,54 +49,27 @@ def send_report(subject, body, html=False):
     return result
 
 
-def get_order_stats(conn, updated_order_ids=None):
+def get_order_stats(conn, sync_order_details=None):
     """Get aggregate order statistics from database"""
     cursor = conn.cursor()
 
     try:
-        # Get stats for this sync (specific orders that were just updated)
-        if updated_order_ids:
-            # Use the specific order IDs from THIS sync
-            cursor.execute("""
-                SELECT
-                    COUNT(*) as count,
-                    COALESCE(SUM(total_price), 0) as total_amount
-                FROM orders
-                WHERE order_id = ANY(%s)
-            """, (updated_order_ids,))
-            this_sync = cursor.fetchone()
-            this_sync_count = this_sync[0] if this_sync else 0
-            this_sync_amount = float(this_sync[1]) if this_sync else 0
+        # Get stats for this sync from the orders that were just processed
+        if sync_order_details:
+            # Calculate directly from the sync data (no DB query needed!)
+            this_sync_count = len(sync_order_details)
+            this_sync_amount = sum(order['total_price'] for order in sync_order_details)
 
-            # Get order details for this sync
-            cursor.execute("""
-                SELECT order_number, total_price
-                FROM orders
-                WHERE order_id = ANY(%s)
-                ORDER BY created_at DESC
-            """, (updated_order_ids,))
-            this_sync_orders = cursor.fetchall()
+            # Convert to list of tuples for compatibility with email template
+            this_sync_orders = [
+                (order['order_number'], order['total_price'])
+                for order in sync_order_details
+            ]
         else:
-            # Fallback to time-based query if no order IDs provided
-            cursor.execute("""
-                SELECT
-                    COUNT(*) as count,
-                    COALESCE(SUM(total_price), 0) as total_amount
-                FROM orders
-                WHERE synced_at >= NOW() - INTERVAL '10 minutes'
-            """)
-            this_sync = cursor.fetchone()
-            this_sync_count = this_sync[0] if this_sync else 0
-            this_sync_amount = float(this_sync[1]) if this_sync else 0
-
-            # Get order details for this sync
-            cursor.execute("""
-                SELECT order_number, total_price
-                FROM orders
-                WHERE synced_at >= NOW() - INTERVAL '10 minutes'
-                ORDER BY created_at DESC
-            """)
-            this_sync_orders = cursor.fetchall()
+            # Fallback if no sync data provided
+            this_sync_count = 0
+            this_sync_amount = 0
+            this_sync_orders = []
 
         # Get today's stats
         cursor.execute("""
@@ -514,9 +487,16 @@ def update_orders(conn, orders):
     orders_updated = 0
     line_items_updated = 0
     updated_order_ids = []
+    sync_order_details = []  # Store (order_number, total_price) for this sync
 
     for idx, order in enumerate(orders, 1):
         updated_order_ids.append(order['id'])
+
+        # Collect order details for sync summary
+        sync_order_details.append({
+            'order_number': order.get('order_number'),
+            'total_price': float(order.get('total_price', 0))
+        })
         utm_source, utm_medium, utm_campaign, utm_content, utm_term = extract_utm_params(order)
         shipping = order.get('shipping_address') or {}
 
@@ -605,7 +585,7 @@ def update_orders(conn, orders):
     conn.commit()
     cursor.close()
 
-    return orders_updated, line_items_updated, updated_order_ids
+    return orders_updated, line_items_updated, sync_order_details
 
 
 def check_and_acquire_lock(conn):
@@ -714,14 +694,23 @@ def run_update():
 
         # Update database
         log("Updating database...")
-        orders_updated, line_items_updated, updated_order_ids = update_orders(conn, orders)
+        orders_updated, line_items_updated, sync_order_details = update_orders(conn, orders)
 
         # Get aggregate stats before closing connection
         log("Gathering statistics...")
-        stats = get_order_stats(conn, updated_order_ids)
+        stats = get_order_stats(conn, sync_order_details)
 
         # Release lock and record completion
-        last_order_date = max([o['updated_at'] for o in orders]) if orders else last_sync
+        # Add 1 second to last_order_date to avoid fetching the same order again
+        if orders:
+            last_updated = max([o['updated_at'] for o in orders])
+            # Parse the ISO timestamp and add 1 second
+            from dateutil import parser
+            last_dt = parser.parse(last_updated)
+            last_order_date = (last_dt + timedelta(seconds=1)).isoformat()
+        else:
+            last_order_date = last_sync
+
         release_lock(conn, lock_id, len(orders), last_order_date, 'completed')
 
         conn.close()

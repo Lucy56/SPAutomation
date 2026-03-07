@@ -38,8 +38,12 @@ def create_schema():
 
     # 1. ENHANCED CUSTOMERS TABLE
     print("\n📊 Creating customers table...")
+
+    # Drop existing customers table if it exists (for clean setup)
+    cursor.execute("DROP TABLE IF EXISTS customers CASCADE")
+
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS customers (
+        CREATE TABLE customers (
             customer_id BIGINT PRIMARY KEY,
             email TEXT UNIQUE NOT NULL,
             created_at TIMESTAMP WITH TIME ZONE,
@@ -99,8 +103,12 @@ def create_schema():
 
     # 2. DAILY STATS TABLE
     print("\n📅 Creating daily_stats table...")
+
+    # Drop existing table for clean setup
+    cursor.execute("DROP TABLE IF EXISTS daily_stats CASCADE")
+
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS daily_stats (
+        CREATE TABLE daily_stats (
             date DATE PRIMARY KEY,
 
             -- REVENUE METRICS
@@ -144,8 +152,12 @@ def create_schema():
 
     # 3. WEEKLY STATS TABLE
     print("\n📆 Creating weekly_stats table...")
+
+    # Drop existing table for clean setup
+    cursor.execute("DROP TABLE IF EXISTS weekly_stats CASCADE")
+
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS weekly_stats (
+        CREATE TABLE weekly_stats (
             year INTEGER NOT NULL,
             week_number INTEGER NOT NULL,           -- ISO week number (1-53)
             week_start_date DATE NOT NULL,          -- Monday of that week

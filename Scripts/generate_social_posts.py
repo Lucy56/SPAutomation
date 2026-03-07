@@ -30,21 +30,26 @@ class SocialMediaPostGenerator:
 
     def authenticate(self):
         """Authenticate with Shopify API"""
-        response = requests.post(
-            f"{self.shop_url}/admin/oauth/access_token",
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
-            data={
-                "grant_type": "client_credentials",
-                "client_id": self.api_key,
-                "client_secret": self.api_secret
-            }
-        )
+        try:
+            response = requests.post(
+                f"{self.shop_url}/admin/oauth/access_token",
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+                data={
+                    "grant_type": "client_credentials",
+                    "client_id": self.api_key,
+                    "client_secret": self.api_secret
+                },
+                timeout=10
+            )
 
-        if response.status_code == 200:
-            self.access_token = response.json()['access_token']
-            return True
-        else:
-            print(f"Authentication failed: {response.status_code}")
+            if response.status_code == 200:
+                self.access_token = response.json()['access_token']
+                return True
+            else:
+                print(f"Authentication failed: {response.status_code} - {response.text}")
+                return False
+        except Exception as e:
+            print(f"Authentication error: {e}")
             return False
 
     def extract_handle_from_url(self, url: str) -> Optional[str]:
@@ -64,12 +69,20 @@ class SocialMediaPostGenerator:
         headers = {"X-Shopify-Access-Token": self.access_token}
         url = f"{self.shop_url}/admin/api/2024-10/products.json?handle={handle}"
 
-        response = requests.get(url, headers=headers)
+        try:
+            response = requests.get(url, headers=headers, timeout=10)
 
-        if response.status_code == 200:
-            products = response.json().get('products', [])
-            if products:
-                return products[0]
+            if response.status_code == 200:
+                products = response.json().get('products', [])
+                if products:
+                    return products[0]
+                else:
+                    print(f"No products found with handle: {handle}")
+            else:
+                print(f"API request failed: {response.status_code} - {response.text}")
+
+        except Exception as e:
+            print(f"Error fetching product: {e}")
 
         return None
 
