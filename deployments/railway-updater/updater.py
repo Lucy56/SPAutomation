@@ -35,7 +35,8 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA
 # AWS SES (preferred - HTTP API works on Railway)
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+AWS_SES_REGION_NAME = os.getenv("AWS_SES_REGION_NAME", "us-east-1")
+AWS_SES_REGION_ENDPOINT = os.getenv("AWS_SES_REGION_ENDPOINT")
 
 # SMTP fallback (blocked on Railway)
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com")
@@ -63,14 +64,19 @@ def send_email(subject, body, html=False):
     # Try AWS SES first (HTTP API - works on Railway)
     if HAS_BOTO3 and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
         try:
-            log(f"Sending email via AWS SES ({AWS_REGION})...")
+            log(f"Sending email via AWS SES ({AWS_SES_REGION_NAME})...")
 
-            ses_client = boto3.client(
-                'ses',
-                region_name=AWS_REGION,
-                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-            )
+            ses_kwargs = {
+                'region_name': AWS_SES_REGION_NAME,
+                'aws_access_key_id': AWS_ACCESS_KEY_ID,
+                'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
+            }
+
+            # Add endpoint if specified
+            if AWS_SES_REGION_ENDPOINT:
+                ses_kwargs['endpoint_url'] = AWS_SES_REGION_ENDPOINT
+
+            ses_client = boto3.client('ses', **ses_kwargs)
 
             response = ses_client.send_email(
                 Source=EMAIL_FROM,
