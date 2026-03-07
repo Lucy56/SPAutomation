@@ -625,9 +625,14 @@ def run_update():
         log(f"  Orders updated: {orders_updated}")
         log(f"  Line items updated: {line_items_updated}")
         if stats:
-            log(f"  Today's orders: {stats['today']['count']:,} (${stats['today']['amount']:,.2f})")
-            log(f"  This week: {stats['week']['count']:,} (${stats['week']['amount']:,.2f})")
-            log(f"  This month: {stats['month']['count']:,} (${stats['month']['amount']:,.2f})")
+            log("")
+            log("SALES SUMMARY:")
+            log(f"  Now (this sync):  {stats['this_sync']['count']:>6,} orders | ${stats['this_sync']['amount']:>10,.2f}")
+            log(f"  Today:            {stats['today']['count']:>6,} orders | ${stats['today']['amount']:>10,.2f}")
+            log(f"  This Week:        {stats['week']['count']:>6,} orders | ${stats['week']['amount']:>10,.2f}")
+            log(f"  This Month:       {stats['month']['count']:>6,} orders | ${stats['month']['amount']:>10,.2f}")
+            log(f"  Last 30 Days:     {stats['last_30_days']['count']:>6,} orders | ${stats['last_30_days']['amount']:>10,.2f}")
+            log(f"  Avg/Day (30d):    {stats['avg_per_day']['count']:>6,.1f} orders | ${stats['avg_per_day']['amount']:>10,.2f}")
         log("="*70)
 
         # Send completion notification with stats (always send, even if 0 orders)
