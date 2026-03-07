@@ -71,7 +71,7 @@ def get_order_stats(conn, sync_order_details=None):
             this_sync_amount = 0
             this_sync_orders = []
 
-        # Get today's stats (PT timezone: UTC-8)
+        # Get today's stats (Shop timezone: Pacific Time with DST)
         cursor.execute("""
             SELECT
                 COUNT(*) as count,
@@ -85,7 +85,7 @@ def get_order_stats(conn, sync_order_details=None):
         today_count = today[0] if today else 0
         today_amount = float(today[1]) if today else 0
 
-        # Get this week's stats (Monday to Sunday in PT timezone)
+        # Get this week's stats (Monday to Sunday in Pacific Time with DST)
         cursor.execute("""
             SELECT
                 COUNT(*) as count,
