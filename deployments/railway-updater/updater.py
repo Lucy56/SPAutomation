@@ -72,9 +72,15 @@ def send_email(subject, body, html=False):
                 'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
             }
 
-            # Add endpoint if specified
-            if AWS_SES_REGION_ENDPOINT:
-                ses_kwargs['endpoint_url'] = AWS_SES_REGION_ENDPOINT
+            # Add endpoint if specified (but skip SMTP endpoints)
+            # AWS SES HTTP API endpoint format: https://email.REGION.amazonaws.com
+            # Don't use email-smtp.* endpoints (those are for SMTP only)
+            if AWS_SES_REGION_ENDPOINT and not 'email-smtp' in AWS_SES_REGION_ENDPOINT:
+                # Ensure endpoint has https:// prefix
+                endpoint = AWS_SES_REGION_ENDPOINT
+                if not endpoint.startswith('http'):
+                    endpoint = f'https://{endpoint}'
+                ses_kwargs['endpoint_url'] = endpoint
 
             ses_client = boto3.client('ses', **ses_kwargs)
 
