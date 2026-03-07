@@ -12,17 +12,7 @@ import psycopg2
 from psycopg2.extras import execute_values
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-# AWS SES for email (HTTP API - works on Railway)
-try:
-    import boto3
-    from botocore.exceptions import ClientError
-    HAS_BOTO3 = True
-except ImportError:
-    HAS_BOTO3 = False
+from email_service import EmailService
 
 
 # Configuration
@@ -31,26 +21,14 @@ SHOPIFY_API_KEY = os.getenv("SHOPIFY_API_KEY")
 SHOPIFY_API_SECRET = os.getenv("SHOPIFY_API_SECRET")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_EXT_SHOPIFY_DATA")
 
-# Email configuration
-# AWS SES (preferred - HTTP API works on Railway)
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_SES_REGION_NAME = os.getenv("AWS_SES_REGION_NAME", "us-east-1")
-AWS_SES_REGION_ENDPOINT = os.getenv("AWS_SES_REGION_ENDPOINT")
-
-# SMTP fallback (blocked on Railway)
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.zoho.com")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USER = os.getenv("EMAIL_HOST_USER", "hello@sinclairpatterns.com")
-EMAIL_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_FROM = os.getenv("DEFAULT_FROM_EMAIL", "hello@sinclairpatterns.com")
-EMAIL_TO = os.getenv("NOTIFICATION_EMAIL", "hello@sinclairpatterns.com")
-
 # How often to run (in seconds)
 RUN_INTERVAL = int(os.getenv("UPDATE_INTERVAL", "300"))  # Default: 5 minutes
 
 # Email notification interval
 EMAIL_NOTIFICATION_INTERVAL = int(os.getenv("EMAIL_NOTIFICATION_INTERVAL", "10000"))  # Every 10k records
+
+# Initialize email service
+email_service = EmailService()
 
 
 def log(message):
@@ -59,90 +37,19 @@ def log(message):
 
 
 def send_email(subject, body, html=False):
-    """Send email notification via AWS SES or SMTP fallback"""
+    """Send email notification via email service"""
+    result = email_service.send_notification(subject, body, html=html)
+    if not result:
+        log("⚠️  Failed to send email notification")
+    return result
 
-    # Try AWS SES first (HTTP API - works on Railway)
-    if HAS_BOTO3 and AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
-        try:
-            log(f"Sending email via AWS SES ({AWS_SES_REGION_NAME})...")
 
-            ses_kwargs = {
-                'region_name': AWS_SES_REGION_NAME,
-                'aws_access_key_id': AWS_ACCESS_KEY_ID,
-                'aws_secret_access_key': AWS_SECRET_ACCESS_KEY
-            }
-
-            # Add endpoint if specified (but skip SMTP endpoints)
-            # AWS SES HTTP API endpoint format: https://email.REGION.amazonaws.com
-            # Don't use email-smtp.* endpoints (those are for SMTP only)
-            if AWS_SES_REGION_ENDPOINT and not 'email-smtp' in AWS_SES_REGION_ENDPOINT:
-                # Ensure endpoint has https:// prefix
-                endpoint = AWS_SES_REGION_ENDPOINT
-                if not endpoint.startswith('http'):
-                    endpoint = f'https://{endpoint}'
-                ses_kwargs['endpoint_url'] = endpoint
-
-            ses_client = boto3.client('ses', **ses_kwargs)
-
-            response = ses_client.send_email(
-                Source=EMAIL_FROM,
-                Destination={'ToAddresses': [EMAIL_TO]},
-                Message={
-                    'Subject': {'Data': subject},
-                    'Body': {
-                        'Html': {'Data': body} if html else {'Data': ''},
-                        'Text': {'Data': body if not html else ''}
-                    }
-                }
-            )
-
-            log(f"✉️  Email sent via AWS SES: {subject} (MessageId: {response['MessageId']})")
-            return True
-
-        except ClientError as e:
-            log(f"⚠️  AWS SES failed: {e.response['Error']['Message']}")
-            # Fall through to SMTP
-        except Exception as e:
-            log(f"⚠️  AWS SES error: {e}")
-            # Fall through to SMTP
-
-    # Fallback to SMTP (blocked on Railway but works elsewhere)
-    if not EMAIL_PASSWORD:
-        log("⚠️  No email credentials configured (SMTP blocked on Railway, need AWS_ACCESS_KEY_ID)")
-        return False
-
-    try:
-        log(f"Sending email via SMTP {EMAIL_HOST}:{EMAIL_PORT}...")
-
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = subject
-        msg['From'] = EMAIL_FROM
-        msg['To'] = EMAIL_TO
-
-        if html:
-            part = MIMEText(body, 'html')
-        else:
-            part = MIMEText(body, 'plain')
-
-        msg.attach(part)
-
-        # Use SSL (port 465) or TLS (port 587)
-        if EMAIL_PORT == 465:
-            with smtplib.SMTP_SSL(EMAIL_HOST, EMAIL_PORT, timeout=30) as server:
-                server.login(EMAIL_USER, EMAIL_PASSWORD)
-                server.send_message(msg)
-        else:
-            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT, timeout=30) as server:
-                server.starttls()
-                server.login(EMAIL_USER, EMAIL_PASSWORD)
-                server.send_message(msg)
-
-        log(f"✉️  Email sent via SMTP: {subject}")
-        return True
-
-    except Exception as e:
-        log(f"⚠️  SMTP failed: {e}")
-        return False
+def send_report(subject, body, html=False):
+    """Send report email to ss@muffinsky.com"""
+    result = email_service.send_report(subject, body, html=html)
+    if not result:
+        log("⚠️  Failed to send report email")
+    return result
 
 
 def send_progress_notification(orders_count, line_items_count, is_first=False, is_final=False):
